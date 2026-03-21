@@ -30,7 +30,7 @@ twitter_username: curliph
 github_username: "0xcdef"
 
 # Build settings
-theme: minima
+theme: slate
 plugins:
   - jekyll-feed
 
