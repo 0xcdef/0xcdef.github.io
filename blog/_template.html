@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POST TITLE — 0xcdef</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap');
+
+  /* ════════════════════════════════════════
+     DESIGN TOKENS
+     ════════════════════════════════════════
+     Light warm parchment background with dark ink text.
+     Accent: terracotta (#C4572A) + amber (#E8A060) + teal (#1D7A6A).
+     Sidebar hidden on mobile (≤780px) via display:none.
+     All fluid sizing via clamp() — no fixed px breakpoints for type.
+  */
+  :root {
+    --bg:          #F7F5F0;   /* warm parchment */
+    --bg2:         #EDEAE2;   /* slightly darker surface */
+    --ink:         #1A1916;   /* near-black warm */
+    --ink2:        #5A5850;   /* body text secondary */
+    --ink3:        #8A8880;   /* captions, labels */
+    --accent:      #C4572A;   /* terracotta — h3, badges, accent bar */
+    --accent2:     #E8A060;   /* amber — eyebrow, em in hero */
+    --teal:        #1D7A6A;   /* teal — links, good state */
+    --teal-light:  #E2F3EF;   /* teal tint — preference badge bg */
+    --border:      #D8D4CA;   /* dividers, card borders */
+    --card:        #FFFFFF;   /* card / sidebar background */
+    --serif:       'DM Serif Display', Georgia, serif;
+    --sans:        'DM Sans', system-ui, sans-serif;
+    --mono:        'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Masthead ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .masthead .logo {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    opacity: .7;
+  }
+  .masthead .sep { opacity: .25; margin: 0 4px; }
+  .masthead .badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .masthead a.home-link {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(247,245,240,.5);
+    text-decoration: none;
+    margin-left: auto;
+  }
+  .masthead a.home-link:hover { color: rgba(247,245,240,.85); }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--ink);
+    padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px) clamp(36px, 7vw, 70px);
+    position: relative;
+    overflow: hidden;
+  }
+  /* decorative radial glows */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,87,42,.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,122,106,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 6vw, 58px);
+    line-height: 1.08;
+    color: #F7F5F0;
+    margin-bottom: 20px;
+    max-width: 640px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent2); }
+  .hero-sub {
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: rgba(247,245,240,.6);
+    line-height: 1.6;
+    max-width: 560px;
+    margin-bottom: 28px;
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: rgba(247,245,240,.45);
+  }
+
+  /* ── Body layout: article + sidebar ── */
+  .body-wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: clamp(32px, 5vw, 60px) clamp(16px, 4vw, 40px);
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: clamp(24px, 4vw, 60px);
+    align-items: start;
+  }
+
+  /* ── MOBILE: single column, sidebar hidden ── */
+  @media (max-width: 780px) {
+    .body-wrap {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .sidebar { display: none; }         /* hide sidebar entirely on mobile */
+    .skill-cards { grid-template-columns: 1fr; }
+  }
+
+  /* ── Article typography ── */
+  article { min-width: 0; }
+
+  article h2 {
+    font-family: var(--serif);
+    font-size: clamp(22px, 4vw, 30px);
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 48px 0 14px;
+  }
+  article h2:first-child { margin-top: 0; }
+
+  article h3 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 32px 0 10px;
+  }
+
+  article p { margin-bottom: 18px; color: var(--ink); }
+  article strong { font-weight: 600; }
+  article a {
+    color: var(--teal);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  /* ── Pull quote ── */
+  .pull {
+    border-left: 3px solid var(--accent);
+    padding: 14px 20px;
+    margin: 28px 0;
+    background: var(--card);
+    border-radius: 0 8px 8px 0;
+  }
+  .pull p {
+    font-family: var(--serif);
+    font-size: clamp(17px, 3vw, 22px);
+    line-height: 1.35;
+    color: var(--ink);
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* ── Section divider ── */
+  .divider { height: 1px; background: var(--border); margin: 36px 0; }
+
+  /* ── Inline code & command blocks ── */
+  code {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--bg2);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .cmd {
+    background: var(--ink);
+    color: #A8E6CF;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 16px 0;
+    line-height: 1.7;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cmd .comment { color: rgba(168,230,207,.35); }
+
+  /* ── Scrollable table wrapper ── */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 20px 0; }
+  .compare-table {
+    width: 100%;
+    min-width: 320px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .compare-table th {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 9px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .compare-table th:first-child { border-radius: 8px 0 0 0; }
+  .compare-table th:last-child  { border-radius: 0 8px 0 0; }
+  .compare-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:nth-child(even) td { background: var(--card); }
+  .compare-table .good { color: var(--teal);   font-weight: 600; }
+  .compare-table .bad  { color: #C04040;        font-weight: 600; }
+  .compare-table .warn { color: #A06010;        font-weight: 600; }
+
+  /* ── Two-up skill/feature cards ── */
+  .skill-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .skill-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    background: var(--card);
+  }
+  .skill-card .sk-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .sk-cap  .sk-badge { background: #FEF3EC;         color: var(--accent); }
+  .sk-pref .sk-badge { background: var(--teal-light); color: var(--teal); }
+  .skill-card h4 {
+    font-family: var(--serif);
+    font-size: clamp(15px, 2.5vw, 18px);
+    margin-bottom: 7px;
+  }
+  .skill-card p { font-size: 13px; color: var(--ink2); margin: 0; }
+  .skill-card .sk-lifespan { margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--ink3); }
+
+  /* ── Loop / flow diagram ── */
+  .loop-diagram {
+    margin: 28px 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .loop-diagram .loop-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 16px;
+  }
+  .loop-steps {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    min-width: 360px;
+  }
+  .loop-step { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .loop-step .circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; flex-shrink: 0;
+  }
+  .loop-step .step-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .07em; color: var(--ink2); text-align: center; white-space: nowrap;
+  }
+  .loop-arrow { font-size: 18px; color: var(--border); padding: 0 3px; padding-bottom: 20px; flex-shrink: 0; }
+  /* circle colour variants */
+  .c1 { background: #FEF3EC; color: var(--accent); }
+  .c2 { background: #FDF6E3; color: #A06010; }
+  .c3 { background: #E2F3EF; color: var(--teal); }
+  .c4 { background: #F0EEF8; color: #5040A0; }
+  .c5 { background: #FEF3EC; color: var(--accent); border: 2px dashed var(--accent); }
+  .loop-note { margin-top: 12px; font-size: 12px; color: var(--ink3); line-height: 1.5; }
+
+  /* ── A/B result bar ── */
+  .ab-bar {
+    background: var(--bg2); border-radius: 8px;
+    overflow: hidden; height: 26px; margin: 10px 0; display: flex;
+  }
+  .ab-skill { background: var(--teal); height: 100%; display: flex; align-items: center; padding: 0 8px; }
+  .ab-base  { background: var(--border); height: 100%; display: flex; align-items: center; padding: 0 8px; }
+  .ab-bar span { font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; }
+  .ab-base span { color: var(--ink2); }
+
+  /* ── Sidebar (desktop only — hidden on mobile via media query above) ── */
+  .sidebar { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .sidebar-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .sidebar-card h4 {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink3); margin-bottom: 14px;
+  }
+  .cheatsheet-item { display: flex; gap: 9px; margin-bottom: 12px; font-size: 13px; align-items: flex-start; }
+  .cheatsheet-item .step-n {
+    width: 20px; height: 20px;
+    background: var(--ink); color: var(--bg);
+    border-radius: 50%; font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .cheatsheet-item .step-text { color: var(--ink2); line-height: 1.4; }
+  .cheatsheet-item .step-text strong { color: var(--ink); display: block; margin-bottom: 2px; }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--ink);
+    color: rgba(247,245,240,.4);
+    padding: clamp(24px, 4vw, 40px);
+    text-align: center;
+    font-size: 12px;
+  }
+  footer strong { color: rgba(247,245,240,.7); }
+</style>
+</head>
+<body>
+
+<!-- ════ MASTHEAD ════ -->
+<!-- badge: category label e.g. "AI / EDA" "Deep Dive" "Tutorial" -->
+<div class="masthead">
+  <span class="logo">0xcdef</span>
+  <span class="sep">·</span>
+  <span class="logo">CATEGORY</span>
+  <a class="home-link" href="/">← Home</a>
+  <span class="badge">LABEL</span>
+</div>
+
+<!-- ════ HERO ════ -->
+<!-- hero-eyebrow: short context line e.g. "Deep Dive · April 2026" -->
+<!-- hero h1: main title, wrap key phrase in <em> for amber gradient -->
+<!-- hero-sub: 1–2 sentence hook -->
+<!-- hero-meta: date · read time -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">EYEBROW TEXT · MONTH YEAR</div>
+    <h1>Main title with an <em>italic accent</em> phrase.</h1>
+    <p class="hero-sub">One or two sentences that hook the reader and summarise the post's value proposition.</p>
+    <div class="hero-meta">
+      <span>TOPIC · MONTH YEAR</span>
+      <span>·</span>
+      <span>X min read</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ BODY ════ -->
+<div class="body-wrap">
+  <article>
+
+    <!-- h2 = major section, h3 = subsection label (all-caps, terracotta) -->
+    <h2>First section heading</h2>
+    <p>Body copy goes here. Keep paragraphs to 3–5 sentences for readability.</p>
+
+    <!-- Pull quote: use for a single punchy insight -->
+    <div class="pull">
+      <p>"A memorable one-liner or key takeaway from this section."</p>
+    </div>
+
+    <p>Continue body copy after the pull quote.</p>
+
+    <div class="divider"></div>
+
+    <!-- Two-up feature cards -->
+    <h2>Comparing two things</h2>
+    <div class="skill-cards">
+      <div class="skill-card sk-cap">
+        <span class="sk-badge">Type A</span>
+        <h4>Card title</h4>
+        <p>Short description of this option or concept.</p>
+        <div class="sk-lifespan">⚠ A caveat or lifespan note</div>
+      </div>
+      <div class="skill-card sk-pref">
+        <span class="sk-badge">Type B</span>
+        <h4>Card title</h4>
+        <p>Short description of this option or concept.</p>
+        <div class="sk-lifespan">✓ A positive note</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Loop / flow diagram — scroll horizontally on mobile -->
+    <h2>A process or loop</h2>
+    <div class="loop-diagram">
+      <div class="loop-label">Process name</div>
+      <div class="loop-steps">
+        <div class="loop-step"><div class="circle c1">①</div><div class="step-label">Step 1</div></div>
+        <div class="loop-arrow">→</div>
+        <div class="loop-step"><div class="circle c2">②</div><div class="step-label">Step 2</div></div>
+        <div class="loop-arrow">→</div>
+        <div class="loop-step"><div class="circle c3">③</div><div class="step-label">Step 3</div></div>
+        <div class="loop-arrow">→</div>
+        <div class="loop-step"><div class="circle c4">④</div><div class="step-label">Step 4</div></div>
+        <div class="loop-arrow">→</div>
+        <div class="loop-step"><div class="circle c5">✓</div><div class="step-label">Done</div></div>
+      </div>
+      <div class="loop-note">Explanatory note below the diagram goes here.</div>
+    </div>
+
+    <h3>Subsection heading</h3>
+    <p>More body copy. Use <code>inline code</code> for technical terms.</p>
+
+    <!-- Command / code block -->
+    <div class="cmd">
+      <span class="comment"># A comment explaining the block</span><br>
+      some-command --flag value<br><br>
+      <span class="comment"># Another example</span><br>
+      another-command --option
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Scrollable data table -->
+    <h2>Data or comparison table</h2>
+    <div class="table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr><th>Column A</th><th>Column B</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="good">Good value</td><td>Explanation</td><td>Do this ✓</td></tr>
+          <tr><td class="warn">Marginal</td><td>Explanation</td><td>Consider it</td></tr>
+          <tr><td class="bad">Poor value</td><td>Explanation</td><td>Avoid</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- A/B visual bars -->
+    <p style="font-size:12px;font-weight:600;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Option A (wins 75%)</p>
+    <div class="ab-bar">
+      <div class="ab-skill" style="width:75%"><span>A: 75%</span></div>
+      <div class="ab-base"  style="width:25%"><span>B: 25%</span></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Closing section -->
+    <h2>Conclusion</h2>
+    <p>Wrap up the post with the key takeaway and a clear next step for the reader.</p>
+
+  </article>
+
+  <!-- ════ SIDEBAR (desktop only) ════ -->
+  <!-- Add cheatsheet items, tips, or reference cards here.
+       This entire aside is hidden on mobile screens (≤780px). -->
+  <aside class="sidebar">
+
+    <div class="sidebar-card">
+      <h4>Quick Reference</h4>
+      <div class="cheatsheet-item">
+        <div class="step-n">1</div>
+        <div class="step-text"><strong>First item</strong>Short description of step one</div>
+      </div>
+      <div class="cheatsheet-item">
+        <div class="step-n">2</div>
+        <div class="step-text"><strong>Second item</strong>Short description of step two</div>
+      </div>
+      <div class="cheatsheet-item">
+        <div class="step-n">3</div>
+        <div class="step-text"><strong>Third item</strong>Short description of step three</div>
+      </div>
+    </div>
+
+    <!-- Dark card variant — good for rules, warnings, or key numbers -->
+    <div class="sidebar-card" style="background:var(--ink);border-color:var(--ink)">
+      <h4 style="color:rgba(247,245,240,.4)">Key rule</h4>
+      <p style="font-size:13px;color:rgba(247,245,240,.7);line-height:1.6;margin:0">
+        A short, memorable rule or principle relevant to the post topic.
+        Use <strong style="color:var(--accent2)">amber</strong> to highlight key numbers or terms.
+      </p>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ════ FOOTER ════ -->
+<footer>
+  <strong>0xcdef</strong> · AI &amp; Agents for ASIC/SoC Design
+</footer>
+
+</body>
+</html>
