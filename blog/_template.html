@@ -10,23 +10,23 @@
   /* ════════════════════════════════════════
      DESIGN TOKENS
      ════════════════════════════════════════
-     Light warm parchment background with dark ink text.
+     Light parchment article surface, dark ink masthead/footer.
      Accent: terracotta (#C4572A) + amber (#E8A060) + teal (#1D7A6A).
-     Sidebar hidden on mobile (≤780px) via display:none.
-     All fluid sizing via clamp() — no fixed px breakpoints for type.
+     These mirror the site's teal/coral palette while keeping
+     the article itself warm and readable.
   */
   :root {
-    --bg:          #F7F5F0;   /* warm parchment */
-    --bg2:         #EDEAE2;   /* slightly darker surface */
-    --ink:         #1A1916;   /* near-black warm */
-    --ink2:        #5A5850;   /* body text secondary */
-    --ink3:        #8A8880;   /* captions, labels */
-    --accent:      #C4572A;   /* terracotta — h3, badges, accent bar */
-    --accent2:     #E8A060;   /* amber — eyebrow, em in hero */
-    --teal:        #1D7A6A;   /* teal — links, good state */
-    --teal-light:  #E2F3EF;   /* teal tint — preference badge bg */
-    --border:      #D8D4CA;   /* dividers, card borders */
-    --card:        #FFFFFF;   /* card / sidebar background */
+    --bg:          #F7F5F0;   /* page / article background  */
+    --bg2:         #EDEAE2;   /* subtle raised surface       */
+    --ink:         #1A1916;   /* masthead, footer, headings  */
+    --ink2:        #5A5850;   /* body text                   */
+    --ink3:        #8A8880;   /* captions, labels            */
+    --accent:      #C4572A;   /* terracotta — h3, badges     */
+    --accent2:     #E8A060;   /* amber — hero em, eyebrow    */
+    --teal:        #1D7A6A;   /* links, diagram steps        */
+    --teal-light:  #E2F3EF;   /* teal badge bg               */
+    --border:      #D8D4CA;   /* dividers, card borders      */
+    --card:        #FFFFFF;   /* card / pull-quote surface   */
     --serif:       'DM Serif Display', Georgia, serif;
     --sans:        'DM Sans', system-ui, sans-serif;
     --mono:        'DM Mono', monospace;
@@ -36,14 +36,16 @@
 
   body {
     background: var(--bg);
-    color: var(--ink);
+    color: var(--ink2);
     font-family: var(--sans);
     font-size: 17px;
     line-height: 1.75;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── Masthead ── */
+  /* ════════════════════════════════════════
+     MASTHEAD
+  ════════════════════════════════════════ */
   .masthead {
     background: var(--ink);
     color: var(--bg);
@@ -79,14 +81,16 @@
   }
   .masthead a.home-link:hover { color: rgba(247,245,240,.85); }
 
-  /* ── Hero ── */
+  /* ════════════════════════════════════════
+     HERO  (dark, full-width)
+  ════════════════════════════════════════ */
   .hero {
     background: var(--ink);
     padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px) clamp(36px, 7vw, 70px);
     position: relative;
     overflow: hidden;
   }
-  /* decorative radial glows */
+  /* decorative radial blobs */
   .hero::before {
     content: '';
     position: absolute;
@@ -144,7 +148,9 @@
     color: rgba(247,245,240,.45);
   }
 
-  /* ── Body layout: article + sidebar ── */
+  /* ════════════════════════════════════════
+     BODY LAYOUT  — article + sidebar grid
+  ════════════════════════════════════════ */
   .body-wrap {
     max-width: 1080px;
     margin: 0 auto;
@@ -155,17 +161,15 @@
     align-items: start;
   }
 
-  /* ── MOBILE: single column, sidebar hidden ── */
+  /* Mobile: single column, sidebar hidden */
   @media (max-width: 780px) {
-    .body-wrap {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
-    .sidebar { display: none; }         /* hide sidebar entirely on mobile */
-    .skill-cards { grid-template-columns: 1fr; }
+    .body-wrap { grid-template-columns: 1fr; gap: 0; }
+    .sidebar   { display: none; }
   }
 
-  /* ── Article typography ── */
+  /* ════════════════════════════════════════
+     ARTICLE TYPOGRAPHY
+  ════════════════════════════════════════ */
   article { min-width: 0; }
 
   article h2 {
@@ -186,14 +190,17 @@
     margin: 32px 0 10px;
   }
 
-  article p { margin-bottom: 18px; color: var(--ink); }
-  article strong { font-weight: 600; }
+  article p     { margin-bottom: 18px; color: var(--ink2); }
+  article strong{ font-weight: 600; }
+  article em    { font-style: italic; }
   article a {
     color: var(--teal);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
   }
+
+  .divider { height: 1px; background: var(--border); margin: 36px 0; }
 
   /* ── Pull quote ── */
   .pull {
@@ -212,10 +219,7 @@
     font-style: italic;
   }
 
-  /* ── Section divider ── */
-  .divider { height: 1px; background: var(--border); margin: 36px 0; }
-
-  /* ── Inline code & command blocks ── */
+  /* ── Inline code ── */
   code {
     font-family: var(--mono);
     font-size: 13px;
@@ -224,6 +228,8 @@
     padding: 2px 6px;
     border-radius: 4px;
   }
+
+  /* ── Command / code block ── */
   .cmd {
     background: var(--ink);
     color: #A8E6CF;
@@ -238,52 +244,22 @@
   }
   .cmd .comment { color: rgba(168,230,207,.35); }
 
-  /* ── Scrollable table wrapper ── */
-  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 20px 0; }
-  .compare-table {
-    width: 100%;
-    min-width: 320px;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-  .compare-table th {
-    background: var(--ink);
-    color: var(--bg);
-    padding: 9px 14px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-  }
-  .compare-table th:first-child { border-radius: 8px 0 0 0; }
-  .compare-table th:last-child  { border-radius: 0 8px 0 0; }
-  .compare-table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    color: var(--ink2);
-    vertical-align: top;
-  }
-  .compare-table tr:last-child td { border-bottom: none; }
-  .compare-table tr:nth-child(even) td { background: var(--card); }
-  .compare-table .good { color: var(--teal);   font-weight: 600; }
-  .compare-table .bad  { color: #C04040;        font-weight: 600; }
-  .compare-table .warn { color: #A06010;        font-weight: 600; }
-
-  /* ── Two-up skill/feature cards ── */
-  .skill-cards {
+  /* ── Two-column card grid (e.g. skill types) ── */
+  .card-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
     margin: 20px 0;
   }
-  .skill-card {
+  @media (max-width: 480px) { .card-grid { grid-template-columns: 1fr; } }
+
+  .card {
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 18px;
     background: var(--card);
   }
-  .skill-card .sk-badge {
+  .card .badge {
     font-size: 9px;
     font-weight: 700;
     letter-spacing: .1em;
@@ -293,72 +269,82 @@
     display: inline-block;
     margin-bottom: 8px;
   }
-  .sk-cap  .sk-badge { background: #FEF3EC;         color: var(--accent); }
-  .sk-pref .sk-badge { background: var(--teal-light); color: var(--teal); }
-  .skill-card h4 {
+  .badge-accent { background: #FEF3EC; color: var(--accent); }
+  .badge-teal   { background: var(--teal-light); color: var(--teal); }
+
+  .card h4 {
     font-family: var(--serif);
     font-size: clamp(15px, 2.5vw, 18px);
+    color: var(--ink);
     margin-bottom: 7px;
   }
-  .skill-card p { font-size: 13px; color: var(--ink2); margin: 0; }
-  .skill-card .sk-lifespan { margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--ink3); }
+  .card p   { font-size: 13px; color: var(--ink2); margin: 0; }
+  .card .note { margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--ink3); }
 
-  /* ── Loop / flow diagram ── */
-  .loop-diagram {
-    margin: 28px 0;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px 20px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  /* ── Scrollable table ── */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 20px 0; }
+  .data-table {
+    width: 100%;
+    min-width: 320px;
+    border-collapse: collapse;
+    font-size: 14px;
   }
-  .loop-diagram .loop-label {
-    font-size: 10px;
+  .data-table th {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 9px 14px;
+    text-align: left;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: .12em;
+    letter-spacing: .08em;
     text-transform: uppercase;
+  }
+  .data-table th:first-child { border-radius: 8px 0 0 0; }
+  .data-table th:last-child  { border-radius: 0 8px 0 0; }
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--card); }
+  .text-good { color: var(--teal);   font-weight: 600; }
+  .text-warn { color: #A06010;       font-weight: 600; }
+  .text-bad  { color: #C04040;       font-weight: 600; }
+
+  /* ── Horizontal progress bar ── */
+  .bar-wrap { margin: 10px 0; }
+  .bar-label {
+    font-size: 11px;
+    font-weight: 600;
     color: var(--ink3);
-    margin-bottom: 16px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
   }
-  .loop-steps {
+  .bar {
+    background: var(--bg2);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 26px;
     display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    min-width: 360px;
   }
-  .loop-step { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-  .loop-step .circle {
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 19px; flex-shrink: 0;
-  }
-  .loop-step .step-label {
-    font-size: 10px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: .07em; color: var(--ink2); text-align: center; white-space: nowrap;
-  }
-  .loop-arrow { font-size: 18px; color: var(--border); padding: 0 3px; padding-bottom: 20px; flex-shrink: 0; }
-  /* circle colour variants */
-  .c1 { background: #FEF3EC; color: var(--accent); }
-  .c2 { background: #FDF6E3; color: #A06010; }
-  .c3 { background: #E2F3EF; color: var(--teal); }
-  .c4 { background: #F0EEF8; color: #5040A0; }
-  .c5 { background: #FEF3EC; color: var(--accent); border: 2px dashed var(--accent); }
-  .loop-note { margin-top: 12px; font-size: 12px; color: var(--ink3); line-height: 1.5; }
+  .bar-fill  { background: var(--teal);  height: 100%; display: flex; align-items: center; padding: 0 8px; }
+  .bar-rest  { background: var(--border); height: 100%; display: flex; align-items: center; padding: 0 8px; }
+  .bar span  { font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; }
+  .bar-rest span { color: var(--ink2); }
 
-  /* ── A/B result bar ── */
-  .ab-bar {
-    background: var(--bg2); border-radius: 8px;
-    overflow: hidden; height: 26px; margin: 10px 0; display: flex;
+  /* ════════════════════════════════════════
+     SIDEBAR  (desktop only, hidden on mobile)
+  ════════════════════════════════════════ */
+  .sidebar {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
-  .ab-skill { background: var(--teal); height: 100%; display: flex; align-items: center; padding: 0 8px; }
-  .ab-base  { background: var(--border); height: 100%; display: flex; align-items: center; padding: 0 8px; }
-  .ab-bar span { font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; }
-  .ab-base span { color: var(--ink2); }
-
-  /* ── Sidebar (desktop only — hidden on mobile via media query above) ── */
-  .sidebar { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 16px; }
   .sidebar-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -366,21 +352,46 @@
     padding: 20px;
   }
   .sidebar-card h4 {
-    font-size: 11px; font-weight: 700; letter-spacing: .1em;
-    text-transform: uppercase; color: var(--ink3); margin-bottom: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 14px;
   }
-  .cheatsheet-item { display: flex; gap: 9px; margin-bottom: 12px; font-size: 13px; align-items: flex-start; }
-  .cheatsheet-item .step-n {
-    width: 20px; height: 20px;
-    background: var(--ink); color: var(--bg);
-    border-radius: 50%; font-size: 10px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; margin-top: 1px;
+  /* dark variant */
+  .sidebar-card.dark {
+    background: var(--ink);
+    border-color: var(--ink);
   }
-  .cheatsheet-item .step-text { color: var(--ink2); line-height: 1.4; }
-  .cheatsheet-item .step-text strong { color: var(--ink); display: block; margin-bottom: 2px; }
+  .sidebar-card.dark h4 { color: rgba(247,245,240,.4); }
+  .sidebar-card.dark p  { font-size: 13px; color: rgba(247,245,240,.7); line-height: 1.6; margin: 0; }
 
-  /* ── Footer ── */
+  /* numbered cheatsheet rows */
+  .step-row {
+    display: flex;
+    gap: 9px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 20px; height: 20px;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text         { color: var(--ink2); line-height: 1.4; }
+  .step-text strong  { color: var(--ink); display: block; margin-bottom: 2px; }
+
+  /* ════════════════════════════════════════
+     FOOTER
+  ════════════════════════════════════════ */
   footer {
     background: var(--ink);
     color: rgba(247,245,240,.4);
@@ -393,165 +404,183 @@
 </head>
 <body>
 
-<!-- ════ MASTHEAD ════ -->
-<!-- badge: category label e.g. "AI / EDA" "Deep Dive" "Tutorial" -->
+<!-- ═══════════════════════════════════════
+     MASTHEAD
+     logo · section separator · home link · category badge
+════════════════════════════════════════ -->
 <div class="masthead">
   <span class="logo">0xcdef</span>
   <span class="sep">·</span>
-  <span class="logo">CATEGORY</span>
+  <span class="logo">SECTION NAME</span>          <!-- e.g. AI & EDA, RTL, Agents -->
   <a class="home-link" href="/">← Home</a>
-  <span class="badge">LABEL</span>
+  <span class="badge">CATEGORY</span>             <!-- e.g. Deep Dive, Tutorial, Opinion -->
 </div>
 
-<!-- ════ HERO ════ -->
-<!-- hero-eyebrow: short context line e.g. "Deep Dive · April 2026" -->
-<!-- hero h1: main title, wrap key phrase in <em> for amber gradient -->
-<!-- hero-sub: 1–2 sentence hook -->
-<!-- hero-meta: date · read time -->
+
+<!-- ═══════════════════════════════════════
+     HERO
+     eyebrow · h1 (with optional <em>) · subtitle · meta
+════════════════════════════════════════ -->
 <div class="hero">
   <div class="hero-inner">
-    <div class="hero-eyebrow">EYEBROW TEXT · MONTH YEAR</div>
-    <h1>Main title with an <em>italic accent</em> phrase.</h1>
-    <p class="hero-sub">One or two sentences that hook the reader and summarise the post's value proposition.</p>
+    <div class="hero-eyebrow">EYEBROW TEXT</div>  <!-- e.g. "Introducing X" / "Series: Y" -->
+    <h1>Your post headline with optional <em>italic&nbsp;gradient</em> word.</h1>
+    <p class="hero-sub">
+      One or two sentence subtitle. Keep it under 25 words — punchy, specific.
+    </p>
     <div class="hero-meta">
-      <span>TOPIC · MONTH YEAR</span>
+      <span>TOPIC · MON YYYY</span>
       <span>·</span>
-      <span>X min read</span>
+      <span>N min read</span>
     </div>
   </div>
 </div>
 
-<!-- ════ BODY ════ -->
+
+<!-- ═══════════════════════════════════════
+     BODY  — article + sidebar
+════════════════════════════════════════ -->
 <div class="body-wrap">
   <article>
 
-    <!-- h2 = major section, h3 = subsection label (all-caps, terracotta) -->
+    <!-- ── Section h2 ── -->
     <h2>First section heading</h2>
-    <p>Body copy goes here. Keep paragraphs to 3–5 sentences for readability.</p>
 
-    <!-- Pull quote: use for a single punchy insight -->
+    <p>Body paragraph. Use <code>inline code</code> for technical terms, <strong>bold</strong> for key phrases, and <em>italics</em> for emphasis. Keep paragraphs to 3–5 sentences.</p>
+
+    <!-- Pull quote — use sparingly, 1–2 per post -->
     <div class="pull">
-      <p>"A memorable one-liner or key takeaway from this section."</p>
+      <p>"A memorable sentence that earns standalone treatment."</p>
     </div>
 
-    <p>Continue body copy after the pull quote.</p>
+    <p>Continue the argument here.</p>
+
+    <!-- ── Horizontal rule between major sections ── -->
+    <div class="divider"></div>
+
+
+    <!-- ── Section: two-column card grid ── -->
+    <h2>Comparing two concepts</h2>
+
+    <p>Intro paragraph before the cards.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="badge badge-accent">Type A</span>
+        <h4>Card title</h4>
+        <p>Short description — what it is, when to use it.</p>
+        <div class="note">⚠ Caveat or lifespan note</div>
+      </div>
+      <div class="card">
+        <span class="badge badge-teal">Type B</span>
+        <h4>Card title</h4>
+        <p>Short description — what it is, when to use it.</p>
+        <div class="note">✓ Durability or benefit note</div>
+      </div>
+    </div>
+
+    <p>Follow-up paragraph interpreting the comparison.</p>
 
     <div class="divider"></div>
 
-    <!-- Two-up feature cards -->
-    <h2>Comparing two things</h2>
-    <div class="skill-cards">
-      <div class="skill-card sk-cap">
-        <span class="sk-badge">Type A</span>
-        <h4>Card title</h4>
-        <p>Short description of this option or concept.</p>
-        <div class="sk-lifespan">⚠ A caveat or lifespan note</div>
-      </div>
-      <div class="skill-card sk-pref">
-        <span class="sk-badge">Type B</span>
-        <h4>Card title</h4>
-        <p>Short description of this option or concept.</p>
-        <div class="sk-lifespan">✓ A positive note</div>
-      </div>
-    </div>
 
-    <div class="divider"></div>
+    <!-- ── Section: subheadings (h3) ── -->
+    <h2>A section with subsections</h2>
 
-    <!-- Loop / flow diagram — scroll horizontally on mobile -->
-    <h2>A process or loop</h2>
-    <div class="loop-diagram">
-      <div class="loop-label">Process name</div>
-      <div class="loop-steps">
-        <div class="loop-step"><div class="circle c1">①</div><div class="step-label">Step 1</div></div>
-        <div class="loop-arrow">→</div>
-        <div class="loop-step"><div class="circle c2">②</div><div class="step-label">Step 2</div></div>
-        <div class="loop-arrow">→</div>
-        <div class="loop-step"><div class="circle c3">③</div><div class="step-label">Step 3</div></div>
-        <div class="loop-arrow">→</div>
-        <div class="loop-step"><div class="circle c4">④</div><div class="step-label">Step 4</div></div>
-        <div class="loop-arrow">→</div>
-        <div class="loop-step"><div class="circle c5">✓</div><div class="step-label">Done</div></div>
-      </div>
-      <div class="loop-note">Explanatory note below the diagram goes here.</div>
-    </div>
+    <h3>Subsection A</h3>
+    <p>Paragraph content for subsection A.</p>
 
-    <h3>Subsection heading</h3>
-    <p>More body copy. Use <code>inline code</code> for technical terms.</p>
-
-    <!-- Command / code block -->
+    <!-- Code block -->
     <div class="cmd">
-      <span class="comment"># A comment explaining the block</span><br>
-      some-command --flag value<br><br>
-      <span class="comment"># Another example</span><br>
+      <span class="comment"># Comment explaining what follows</span><br>
+      command --flag value<br><br>
+      <span class="comment"># Another block</span><br>
       another-command --option
     </div>
 
+    <h3>Subsection B</h3>
+    <p>Paragraph content for subsection B.</p>
+
     <div class="divider"></div>
 
-    <!-- Scrollable data table -->
-    <h2>Data or comparison table</h2>
+
+    <!-- ── Section: data table ── -->
+    <h2>Comparison table</h2>
+
     <div class="table-wrap">
-      <table class="compare-table">
+      <table class="data-table">
         <thead>
           <tr><th>Column A</th><th>Column B</th><th>Action</th></tr>
         </thead>
         <tbody>
-          <tr><td class="good">Good value</td><td>Explanation</td><td>Do this ✓</td></tr>
-          <tr><td class="warn">Marginal</td><td>Explanation</td><td>Consider it</td></tr>
-          <tr><td class="bad">Poor value</td><td>Explanation</td><td>Avoid</td></tr>
+          <tr><td class="text-good">Good value</td><td>Description</td><td>Do this ✓</td></tr>
+          <tr><td class="text-warn">Mid value</td><td>Description</td><td>Consider</td></tr>
+          <tr><td class="text-bad">Bad value</td><td>Description</td><td>Avoid</td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- A/B visual bars -->
-    <p style="font-size:12px;font-weight:600;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Option A (wins 75%)</p>
-    <div class="ab-bar">
-      <div class="ab-skill" style="width:75%"><span>A: 75%</span></div>
-      <div class="ab-base"  style="width:25%"><span>B: 25%</span></div>
+
+    <!-- ── Section: progress bars ── -->
+    <h2>Visual comparisons</h2>
+
+    <div class="bar-wrap">
+      <div class="bar-label">Label for bar A (75%)</div>
+      <div class="bar">
+        <div class="bar-fill" style="width:75%"><span>75%</span></div>
+        <div class="bar-rest" style="width:25%"><span>25%</span></div>
+      </div>
+    </div>
+
+    <div class="bar-wrap">
+      <div class="bar-label">Label for bar B (40%)</div>
+      <div class="bar">
+        <div class="bar-fill" style="width:40%"><span>40%</span></div>
+        <div class="bar-rest" style="width:60%"><span>60%</span></div>
+      </div>
     </div>
 
     <div class="divider"></div>
 
-    <!-- Closing section -->
+
+    <!-- ── Closing section ── -->
     <h2>Conclusion</h2>
-    <p>Wrap up the post with the key takeaway and a clear next step for the reader.</p>
+
+    <p>Wrap up the argument. Restate the key insight without repeating word-for-word.</p>
+    <p>End with a forward-looking sentence or call to action.</p>
 
   </article>
 
-  <!-- ════ SIDEBAR (desktop only) ════ -->
-  <!-- Add cheatsheet items, tips, or reference cards here.
-       This entire aside is hidden on mobile screens (≤780px). -->
+
+  <!-- ═══════════════════════════════════════
+       SIDEBAR  (hidden on mobile ≤780px)
+       Use for cheatsheets, quick-refs, tips
+  ════════════════════════════════════════ -->
   <aside class="sidebar">
 
+    <!-- Numbered cheatsheet card -->
     <div class="sidebar-card">
-      <h4>Quick Reference</h4>
-      <div class="cheatsheet-item">
-        <div class="step-n">1</div>
-        <div class="step-text"><strong>First item</strong>Short description of step one</div>
-      </div>
-      <div class="cheatsheet-item">
-        <div class="step-n">2</div>
-        <div class="step-text"><strong>Second item</strong>Short description of step two</div>
-      </div>
-      <div class="cheatsheet-item">
-        <div class="step-n">3</div>
-        <div class="step-text"><strong>Third item</strong>Short description of step three</div>
-      </div>
+      <h4>Quick reference</h4>
+      <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Step title</strong>Brief description of this step</div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Step title</strong>Brief description of this step</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Step title</strong>Brief description of this step</div></div>
+      <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Step title</strong>Brief description of this step</div></div>
+      <div class="step-row"><div class="step-num">5</div><div class="step-text"><strong>Step title</strong>Brief description of this step</div></div>
     </div>
 
-    <!-- Dark card variant — good for rules, warnings, or key numbers -->
-    <div class="sidebar-card" style="background:var(--ink);border-color:var(--ink)">
-      <h4 style="color:rgba(247,245,240,.4)">Key rule</h4>
-      <p style="font-size:13px;color:rgba(247,245,240,.7);line-height:1.6;margin:0">
-        A short, memorable rule or principle relevant to the post topic.
-        Use <strong style="color:var(--accent2)">amber</strong> to highlight key numbers or terms.
-      </p>
+    <!-- Dark callout card -->
+    <div class="sidebar-card dark">
+      <h4>Rule of thumb</h4>
+      <p>A memorable heuristic or warning the reader should keep in mind. Keep to 2–3 sentences max.</p>
     </div>
 
   </aside>
 </div>
 
-<!-- ════ FOOTER ════ -->
+
+<!-- ═══════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
 <footer>
   <strong>0xcdef</strong> · AI &amp; Agents for ASIC/SoC Design
 </footer>
