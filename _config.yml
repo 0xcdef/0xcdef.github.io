@@ -2,16 +2,14 @@
 title: "->C->D->E->F->"
 email: curliph@gmail.com
 description: >-
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  AI & Agent technology for modern ASIC/SoC chip design.
 baseurl: ""
 url: ""
 twitter_username: curliph
 github_username: "0xcdef"
 
 # Build settings
-remote_theme: pages-themes/slate@v0.2.0
+remote_theme: pages-themes/minimal@v0.2.0
 plugins:
   - jekyll-feed
   - jekyll-remote-theme

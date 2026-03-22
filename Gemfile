@@ -1,6 +1,5 @@
 source "https://rubygems.org"
 
-# Use GitHub Pages gem — handles Jekyll + all supported plugins and themes
 gem "github-pages", group: :jekyll_plugins
 
 group :jekyll_plugins do
@@ -8,7 +7,6 @@ group :jekyll_plugins do
   gem "jekyll-remote-theme"
 end
 
-# Windows and JRuby does not include zoneinfo files
 platforms :mingw, :x64_mingw, :mswin, :jruby do
   gem "tzinfo", "~> 1.2"
   gem "tzinfo-data"
