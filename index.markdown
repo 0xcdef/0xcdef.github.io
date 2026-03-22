@@ -50,6 +50,17 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
 <!-- Latest Writing -->
 <div class="section-heading">Latest Writing</div>
 <div class="post-list">
+
+  <div class="post-item">
+    <div class="post-item-meta">
+      <span class="post-item-tag">Tutorial</span>
+      <span class="post-date">Mar 22, 2026</span>
+    </div>
+    <a class="post-item-title" href="/blog/claude-mcp-github-pages.html">Building a GitHub Pages Site with Claude &amp;&nbsp;MCP</a>
+    <p class="post-item-desc">How to wire Claude Desktop to your GitHub repo via MCP, push a Jekyll site, iterate on UI design through conversation, and publish blog posts &mdash; all without leaving the chat.</p>
+    <a class="post-item-link" href="/blog/claude-mcp-github-pages.html">Read the post &rarr;</a>
+  </div>
+
   <div class="post-item">
     <div class="post-item-meta">
       <span class="post-item-tag">Methodology</span>
@@ -59,6 +70,7 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
     <p class="post-item-desc">Introducing skill-loop &mdash; a step-by-step guide built on the Skills 2.0 methodology, covering creation, eval testing, A/B benchmarking, and trigger optimization.</p>
     <a class="post-item-link" href="/blog/skill-loop.html">Read the post &rarr;</a>
   </div>
+
 </div>
 
 <!-- About -->

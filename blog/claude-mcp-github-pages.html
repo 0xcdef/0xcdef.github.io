@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building a GitHub Pages Site with Claude & MCP — 0xcdef</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap');
+
+  :root {
+    --bg:          #F7F5F0;
+    --bg2:         #EDEAE2;
+    --ink:         #1A1916;
+    --ink2:        #5A5850;
+    --ink3:        #8A8880;
+    --accent:      #C4572A;
+    --accent2:     #E8A060;
+    --teal:        #1D7A6A;
+    --teal-light:  #E2F3EF;
+    --border:      #D8D4CA;
+    --card:        #FFFFFF;
+    --serif:       'DM Serif Display', Georgia, serif;
+    --sans:        'DM Sans', system-ui, sans-serif;
+    --mono:        'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink2);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Masthead ── */
+  .masthead {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .masthead .logo { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; opacity: .7; }
+  .masthead .sep  { opacity: .25; margin: 0 4px; }
+  .masthead .badge {
+    font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 20px;
+  }
+  .masthead a.home-link {
+    font-family: var(--mono); font-size: 11px;
+    color: rgba(247,245,240,.5); text-decoration: none; margin-left: auto;
+  }
+  .masthead a.home-link:hover { color: rgba(247,245,240,.85); }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--ink);
+    padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px) clamp(36px, 7vw, 70px);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -120px; right: -120px;
+    width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,87,42,.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: ''; position: absolute; bottom: -80px; left: 60px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,122,106,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 760px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent2); margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 6vw, 58px);
+    line-height: 1.08; color: #F7F5F0; margin-bottom: 20px; max-width: 640px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent2); }
+  .hero-sub {
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: rgba(247,245,240,.6); line-height: 1.6; max-width: 560px; margin-bottom: 28px;
+  }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 12px; font-size: 12px; color: rgba(247,245,240,.45);
+  }
+
+  /* ── Body layout ── */
+  .body-wrap {
+    max-width: 1080px; margin: 0 auto;
+    padding: clamp(32px, 5vw, 60px) clamp(16px, 4vw, 40px);
+    display: grid; grid-template-columns: 1fr 280px;
+    gap: clamp(24px, 4vw, 60px); align-items: start;
+  }
+  @media (max-width: 780px) {
+    .body-wrap { grid-template-columns: 1fr; gap: 0; }
+    .sidebar   { display: none; }
+  }
+
+  /* ── Article typography ── */
+  article { min-width: 0; }
+  article h2 {
+    font-family: var(--serif);
+    font-size: clamp(22px, 4vw, 30px);
+    line-height: 1.15; color: var(--ink); margin: 48px 0 14px;
+  }
+  article h2:first-child { margin-top: 0; }
+  article h3 {
+    font-size: 13px; font-weight: 600; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--accent); margin: 32px 0 10px;
+  }
+  article p      { margin-bottom: 18px; color: var(--ink2); }
+  article strong { font-weight: 600; }
+  article em     { font-style: italic; }
+  article a      { color: var(--teal); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+  .divider { height: 1px; background: var(--border); margin: 36px 0; }
+
+  .pull {
+    border-left: 3px solid var(--accent);
+    padding: 14px 20px; margin: 28px 0;
+    background: var(--card); border-radius: 0 8px 8px 0;
+  }
+  .pull p {
+    font-family: var(--serif);
+    font-size: clamp(17px, 3vw, 22px);
+    line-height: 1.35; color: var(--ink); margin: 0; font-style: italic;
+  }
+
+  code {
+    font-family: var(--mono); font-size: 13px;
+    background: var(--bg2); color: var(--accent);
+    padding: 2px 6px; border-radius: 4px;
+  }
+
+  .cmd {
+    background: var(--ink); color: #A8E6CF;
+    font-family: var(--mono); font-size: 13px;
+    padding: 14px 18px; border-radius: 8px;
+    margin: 16px 0; line-height: 1.7;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .cmd .comment { color: rgba(168,230,207,.35); }
+
+  /* ── Two-column card grid ── */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  @media (max-width: 480px) { .card-grid { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--border); border-radius: 10px; padding: 18px; background: var(--card); }
+  .card .badge {
+    font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 8px;
+  }
+  .badge-accent { background: #FEF3EC; color: var(--accent); }
+  .badge-teal   { background: var(--teal-light); color: var(--teal); }
+  .card h4 { font-family: var(--serif); font-size: clamp(15px, 2.5vw, 18px); color: var(--ink); margin-bottom: 7px; }
+  .card p  { font-size: 13px; color: var(--ink2); margin: 0; }
+  .card .note { margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--ink3); }
+
+  /* ── Scrollable table ── */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 20px 0; }
+  .data-table { width: 100%; min-width: 320px; border-collapse: collapse; font-size: 14px; }
+  .data-table th {
+    background: var(--ink); color: var(--bg); padding: 9px 14px; text-align: left;
+    font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .data-table th:first-child { border-radius: 8px 0 0 0; }
+  .data-table th:last-child  { border-radius: 0 8px 0 0; }
+  .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--ink2); vertical-align: top; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--card); }
+  .text-good { color: var(--teal); font-weight: 600; }
+  .text-warn { color: #A06010;    font-weight: 600; }
+  .text-bad  { color: #C04040;    font-weight: 600; }
+
+  /* ── Sidebar ── */
+  .sidebar { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .sidebar-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .sidebar-card h4 {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink3); margin-bottom: 14px;
+  }
+  .sidebar-card.dark { background: var(--ink); border-color: var(--ink); }
+  .sidebar-card.dark h4 { color: rgba(247,245,240,.4); }
+  .sidebar-card.dark p  { font-size: 13px; color: rgba(247,245,240,.7); line-height: 1.6; margin: 0; }
+  .step-row { display: flex; gap: 9px; margin-bottom: 12px; font-size: 13px; align-items: flex-start; }
+  .step-num {
+    width: 20px; height: 20px; background: var(--ink); color: var(--bg);
+    border-radius: 50%; font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .step-text        { color: var(--ink2); line-height: 1.4; }
+  .step-text strong { color: var(--ink); display: block; margin-bottom: 2px; }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--ink); color: rgba(247,245,240,.4);
+    padding: clamp(24px, 4vw, 40px); text-align: center; font-size: 12px;
+  }
+  footer strong { color: rgba(247,245,240,.7); }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <span class="logo">0xcdef</span>
+  <span class="sep">&middot;</span>
+  <span class="logo">AI &amp; Tooling</span>
+  <a class="home-link" href="/">&larr; Home</a>
+  <span class="badge">Tutorial</span>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Claude &times; GitHub &middot; March 2026</div>
+    <h1>Building a GitHub Pages Site with <em>Claude&nbsp;&amp;&nbsp;MCP</em></h1>
+    <p class="hero-sub">
+      How to wire Claude Desktop to your GitHub repo, let an AI agent push code,
+      design a Jekyll site, and iterate on UI &mdash; all through conversation.
+    </p>
+    <div class="hero-meta">
+      <span>AI &amp; Tooling &middot; March 2026</span>
+      <span>&middot;</span>
+      <span>8 min read</span>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+  <article>
+
+    <h2>What is MCP and why does it matter?</h2>
+
+    <p>Model Context Protocol (MCP) is an open standard that lets AI assistants like Claude talk directly to external tools &mdash; file systems, APIs, databases, and services like GitHub &mdash; without you copying and pasting content back and forth. Instead of describing what you want and manually applying the result, Claude can <em>act</em>: read files, write commits, push branches, and open pull requests on your behalf.</p>
+
+    <div class="pull">
+      <p>&ldquo;MCP turns Claude from a text generator into an autonomous agent that can operate your tools.&rdquo;</p>
+    </div>
+
+    <p>For developers, this changes the workflow fundamentally. Your repository becomes a shared workspace between you and Claude. You describe intent; Claude handles the mechanical execution. The conversation <em>is</em> the version history.</p>
+
+    <div class="divider"></div>
+
+    <h2>Step 1 &mdash; Connect Claude Desktop to GitHub</h2>
+
+    <p>Claude Desktop supports MCP servers configured in a local JSON file. GitHub provides an official MCP server via <code>npx</code>, so no separate installation is required beyond Node.js.</p>
+
+    <h3>Create a GitHub Personal Access Token</h3>
+    <p>Go to <strong>GitHub &rarr; Settings &rarr; Developer Settings &rarr; Personal Access Tokens</strong> and generate a fine-grained token with <code>repo</code> scope (read &amp; write access to your repositories). Copy the token &mdash; you will only see it once.</p>
+
+    <h3>Edit the Claude Desktop config</h3>
+    <p>Open the Claude Desktop configuration file for your platform:</p>
+
+    <div class="cmd">
+      <span class="comment"># macOS</span><br>
+      ~/Library/Application Support/Claude/claude_desktop_config.json<br><br>
+      <span class="comment"># Windows</span><br>
+      %APPDATA%\Claude\claude_desktop_config.json
+    </div>
+
+    <p>Add the GitHub MCP server block. If the file already has other MCP servers, add a new entry inside <code>mcpServers</code>:</p>
+
+    <div class="cmd">
+      <span class="comment"># claude_desktop_config.json</span><br>
+      {<br>
+      &nbsp;&nbsp;&quot;mcpServers&quot;: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&quot;github&quot;: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;command&quot;: &quot;npx&quot;,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;args&quot;: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-github&quot;],<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;env&quot;: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;GITHUB_PERSONAL_ACCESS_TOKEN&quot;: &quot;ghp_your_token_here&quot;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;}<br>
+      }
+    </div>
+
+    <p>Save the file, then <strong>fully quit and relaunch Claude Desktop</strong>. The MCP server starts as a child process &mdash; changes to the config file are only picked up on launch.</p>
+
+    <h3>Verify the connection</h3>
+    <p>In a new Claude Desktop conversation, ask something like <em>&ldquo;List the files in my repo username/repo-name&rdquo;</em>. If Claude returns a file listing rather than an error, the MCP connection is live. If you see errors, the most common causes are a stale <code>Gemfile.lock</code>, a missing <code>repo</code> scope on the token, or <code>npx</code> not being available in your system PATH.</p>
+
+    <div class="divider"></div>
+
+    <h2>Step 2 &mdash; Set up a Jekyll GitHub Pages site</h2>
+
+    <p>GitHub Pages natively builds Jekyll sites on every push to <code>main</code>. The minimal viable setup is three files.</p>
+
+    <h3>Choose a theme</h3>
+    <p>GitHub Pages supports a small set of officially sanctioned themes (Minimal, Slate, Cayman, etc.) via the <code>remote_theme</code> config key, plus any theme hosted on GitHub via <code>jekyll-remote-theme</code>. The cleanest setup for customisation is the <strong>Minimal</strong> theme &mdash; it provides a clean single-column layout with a left sidebar, minimal default styling, and easy CSS overrides.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="badge badge-accent">remote_theme</span>
+        <h4>pages-themes/minimal</h4>
+        <p>Single-column, no opinionated sidebar. Best for a personal site where you control the full layout.</p>
+        <div class="note">&check; Recommended for custom designs</div>
+      </div>
+      <div class="card">
+        <span class="badge badge-teal">remote_theme</span>
+        <h4>pages-themes/slate</h4>
+        <p>Dark background, two-column layout with a left sidebar. Good starting point for a technical blog.</p>
+        <div class="note">&#9888; Harder to override background colours</div>
+      </div>
+    </div>
+
+    <h3>The three required files</h3>
+    <p>Ask Claude to push these three files to get a working site in under a minute:</p>
+
+    <div class="cmd">
+      <span class="comment"># _config.yml &mdash; site metadata and theme</span><br>
+      title: &quot;Your Name&quot;<br>
+      description: &quot;Your tagline&quot;<br>
+      remote_theme: pages-themes/minimal@v0.2.0<br>
+      plugins:<br>
+      &nbsp;&nbsp;- jekyll-feed<br>
+      &nbsp;&nbsp;- jekyll-remote-theme<br><br>
+      <span class="comment"># Gemfile &mdash; Ruby dependencies</span><br>
+      source &quot;https://rubygems.org&quot;<br>
+      gem &quot;github-pages&quot;, group: :jekyll_plugins<br>
+      group :jekyll_plugins do<br>
+      &nbsp;&nbsp;gem &quot;jekyll-remote-theme&quot;<br>
+      end<br><br>
+      <span class="comment"># index.markdown &mdash; homepage content</span><br>
+      ---<br>
+      layout: default<br>
+      title: Your Site Title<br>
+      ---<br>
+      Hello world.
+    </div>
+
+    <p>A critical gotcha: <strong>never commit a stale <code>Gemfile.lock</code></strong>. If one exists from a previous local setup, it will pin old gem versions that conflict with <code>github-pages</code>. Delete it or let GitHub Pages regenerate it on build.</p>
+
+    <div class="divider"></div>
+
+    <h2>Step 3 &mdash; Override the theme CSS</h2>
+
+    <p>Every GitHub Pages theme loads its styles from the gem. The correct override path is <code>assets/css/style.scss</code> &mdash; Jekyll looks there first and merges it with the theme. The file must start with Jekyll front matter (two triple-dashed lines), then import the theme, then add your custom rules:</p>
+
+    <div class="cmd">
+      <span class="comment"># assets/css/style.scss</span><br>
+      ---<br>
+      ---<br><br>
+      @import &quot;{{ site.theme }}&quot;;<br><br>
+      <span class="comment"># your overrides below &mdash; these load after the theme</span><br>
+      body { background: #1a1a1a !important; }<br>
+      a    { color: #4ecdc4 !important; }
+    </div>
+
+    <p>For layout-level elements like <code>header</code>, <code>section</code>, and <code>footer</code>, you often need <code>!important</code> because the theme sets these with high-specificity selectors. The most reliable approach is to combine SCSS variable overrides <em>before</em> the import line with explicit CSS overrides <em>after</em> it.</p>
+
+    <div class="divider"></div>
+
+    <h2>Step 4 &mdash; Override the layout</h2>
+
+    <p>For deeper structural changes &mdash; a custom profile sidebar, different navigation, or a header with social links &mdash; create <code>_layouts/default.html</code> in your repo. Jekyll checks your repo&rsquo;s <code>_layouts</code> directory before the theme&rsquo;s, so your file wins automatically.</p>
+
+    <p>The minimal structure that works with Minimal theme is:</p>
+
+    <div class="cmd">
+      <span class="comment"># _layouts/default.html</span><br>
+      &lt;!DOCTYPE html&gt;<br>
+      &lt;html lang=&quot;en&quot;&gt;<br>
+      &lt;head&gt;<br>
+      &nbsp;&nbsp;&lt;meta charset=&quot;UTF-8&quot;&gt;<br>
+      &nbsp;&nbsp;&lt;link rel=&quot;stylesheet&quot; href=&quot;{{ '/assets/css/style.css' | relative_url }}&quot;&gt;<br>
+      &nbsp;&nbsp;{% include head-custom.html %}<br>
+      &lt;/head&gt;<br>
+      &lt;body&gt;<br>
+      &nbsp;&nbsp;&lt;header&gt;...your profile sidebar...&lt;/header&gt;<br>
+      &nbsp;&nbsp;&lt;section&gt;{{ content }}&lt;/section&gt;<br>
+      &lt;/body&gt;<br>
+      &lt;/html&gt;
+    </div>
+
+    <p>You can pull any site variable from <code>_config.yml</code> directly into this template &mdash; <code>{{ site.title }}</code>, <code>{{ site.description }}</code>, <code>{{ site.github_username }}</code> &mdash; making the header data-driven rather than hardcoded.</p>
+
+    <div class="divider"></div>
+
+    <h2>Step 5 &mdash; Push a blog post</h2>
+
+    <p>Blog posts for a GitHub Pages site can be either Jekyll <code>_posts</code> markdown files (which get auto-listed by the theme) or standalone HTML files in a <code>blog/</code> folder. For full design control &mdash; custom hero sections, sidebar cheatsheets, pull quotes &mdash; the standalone HTML approach gives you complete freedom with no theme interference.</p>
+
+    <h3>Standalone HTML blog posts</h3>
+    <p>Keep a template file at <code>blog/_template.html</code> with all your design tokens, component CSS, and placeholder markup. When you want a new post, tell Claude: <em>&ldquo;Create a new blog post following blog/_template.html about [topic] and push it.&rdquo;</em> Claude reads the template, writes the content, and pushes the file in one step.</p>
+
+    <h3>Update the index manually</h3>
+    <p>Since standalone HTML posts are not Jekyll posts, they won&rsquo;t appear in <code>site.posts</code>. Maintain a manual post list in <code>index.markdown</code> using a consistent card component. Each card gets a tag, a date, a title link, a description, and a &ldquo;Read the post&rdquo; link. Ask Claude to add the new entry to the index in the same commit as the blog post.</p>
+
+    <div class="divider"></div>
+
+    <h2>Lessons learned &mdash; common pitfalls</h2>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Problem</th><th>Root cause</th><th>Fix</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Theme not applying</td>
+            <td>Using <code>theme:</code> instead of <code>remote_theme:</code> for non-natively-supported themes</td>
+            <td>Switch to <code>remote_theme: pages-themes/minimal@v0.2.0</code> + add <code>jekyll-remote-theme</code> plugin</td>
+          </tr>
+          <tr>
+            <td>Build fails silently</td>
+            <td>Stale <code>Gemfile.lock</code> pinning old Jekyll version</td>
+            <td>Delete <code>Gemfile.lock</code> or regenerate it against <code>github-pages</code> gem</td>
+          </tr>
+          <tr>
+            <td>CSS overrides ignored</td>
+            <td>Inline <code>&lt;style&gt;</code> in markdown loads after theme but misses structural elements</td>
+            <td>Move all overrides to <code>assets/css/style.scss</code> with <code>!important</code> on layout selectors</td>
+          </tr>
+          <tr>
+            <td>Mobile sidebar overlap</td>
+            <td><code>position: sticky</code> escaping grid flow on narrow viewports</td>
+            <td>Add <code>@media (max-width: 780px) { .sidebar { display: none; } }</code></td>
+          </tr>
+          <tr>
+            <td>Blog layout not <code>home</code></td>
+            <td>Minimal theme has no <code>home</code> layout; that is Minima-specific</td>
+            <td>Use <code>layout: default</code> in all page front matter</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>The workflow in practice</h2>
+
+    <p>Once MCP is configured, the full loop &mdash; from idea to live page &mdash; collapses to a single conversation. You describe what you want; Claude reads the current state of your repo, writes the code, and pushes the commit. You refresh GitHub Pages one to two minutes later and see the result.</p>
+
+    <div class="pull">
+      <p>&ldquo;The conversation becomes the version history. Your intent is the commit message.&rdquo;</p>
+    </div>
+
+    <p>This is especially powerful for iterative UI work. Instead of switching between your editor, terminal, and browser, you describe the problem (&ldquo;the sidebar overlaps content on mobile&rdquo;) and Claude diagnoses, fixes, and pushes in one step. The feedback loop that used to take minutes per iteration shrinks to seconds.</p>
+
+    <p>For anyone building a technical blog or personal site, connecting Claude to GitHub via MCP is one of the highest-leverage setups available today. The one-time cost of configuration pays back immediately &mdash; and every future post or redesign becomes a conversation rather than a task.</p>
+
+  </article>
+
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h4>Setup checklist</h4>
+      <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>GitHub PAT</strong>Generate with <code>repo</code> scope in Developer Settings</div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Edit config JSON</strong>Add <code>mcpServers.github</code> block with your token</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Relaunch Claude Desktop</strong>MCP servers start on launch only</div></div>
+      <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Push 3 files</strong><code>_config.yml</code>, <code>Gemfile</code>, <code>index.markdown</code></div></div>
+      <div class="step-row"><div class="step-num">5</div><div class="step-text"><strong>Override CSS</strong>Use <code>assets/css/style.scss</code> &mdash; never inline styles</div></div>
+      <div class="step-row"><div class="step-num">6</div><div class="step-text"><strong>Custom layout</strong>Add <code>_layouts/default.html</code> for structural changes</div></div>
+      <div class="step-row"><div class="step-num">7</div><div class="step-text"><strong>Blog template</strong>Keep <code>blog/_template.html</code> as the canonical style reference</div></div>
+    </div>
+
+    <div class="sidebar-card dark">
+      <h4>Key rule</h4>
+      <p>Never commit a <strong style="color: var(--accent2)">stale Gemfile.lock</strong>. It is the single most common cause of silent GitHub Pages build failures when switching themes or adding plugins.</p>
+    </div>
+
+    <div class="sidebar-card">
+      <h4>Useful MCP prompts</h4>
+      <div class="step-row"><div class="step-num">&bull;</div><div class="step-text"><strong>Read a file</strong>&ldquo;Show me the contents of _config.yml&rdquo;</div></div>
+      <div class="step-row"><div class="step-num">&bull;</div><div class="step-text"><strong>Push a fix</strong>&ldquo;Update assets/css/style.scss to hide the sidebar on mobile&rdquo;</div></div>
+      <div class="step-row"><div class="step-num">&bull;</div><div class="step-text"><strong>New post</strong>&ldquo;Create a blog post following blog/_template.html about [topic]&rdquo;</div></div>
+      <div class="step-row"><div class="step-num">&bull;</div><div class="step-text"><strong>Debug build</strong>&ldquo;Check my Gemfile and _config.yml for theme conflicts&rdquo;</div></div>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <strong>0xcdef</strong> &middot; AI &amp; Agents for ASIC/SoC Design
+</footer>
+
+</body>
+</html>
