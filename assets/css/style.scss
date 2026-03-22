@@ -65,7 +65,6 @@ header {
   box-shadow: none !important;
 }
 
-// Eyebrow label
 .header-eyebrow {
   font-size: 9.5px;
   font-weight: 700;
@@ -76,19 +75,16 @@ header {
   display: flex;
   align-items: center;
   gap: 7px;
-
   &::before {
     content: '';
     display: inline-block;
-    width: 14px;
-    height: 1.5px;
+    width: 14px; height: 1.5px;
     background: var(--teal);
     border-radius: 1px;
     flex-shrink: 0;
   }
 }
 
-// Name / site title
 .header-name {
   font-size: 1.5rem !important;
   font-weight: 800 !important;
@@ -97,7 +93,6 @@ header {
   line-height: 1.15 !important;
   border: none !important;
   background: none !important;
-
   a {
     color: var(--text-hi) !important;
     text-decoration: none !important;
@@ -105,7 +100,6 @@ header {
   }
 }
 
-// Tagline
 .header-tagline {
   font-size: 0.8rem;
   font-weight: 600;
@@ -114,7 +108,6 @@ header {
   margin-bottom: 14px;
 }
 
-// Bio paragraph
 .header-bio {
   font-size: 0.82rem;
   color: var(--text-dim);
@@ -124,7 +117,6 @@ header {
   padding-bottom: 20px;
 }
 
-// Social links
 .header-links {
   display: flex;
   flex-direction: column;
@@ -141,9 +133,7 @@ header {
   color: var(--text-dim) !important;
   text-decoration: none !important;
   transition: color 0.15s;
-
   svg { flex-shrink: 0; opacity: 0.6; transition: opacity 0.15s; }
-
   &:hover {
     color: var(--teal) !important;
     text-decoration: none !important;
@@ -151,7 +141,6 @@ header {
   }
 }
 
-// Topic tags in header
 .header-tags {
   display: flex;
   flex-direction: column;
@@ -188,12 +177,7 @@ section {
   min-width: 0;
 }
 
-// ════════════════════════════════════════
-//  FOOTER
-// ════════════════════════════════════════
-footer {
-  display: none !important;
-}
+footer { display: none !important; }
 
 // Global links & headings
 a {
@@ -201,14 +185,11 @@ a {
   text-decoration: none;
   &:hover { color: var(--teal-hi) !important; text-decoration: underline; }
 }
-
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-hi) !important;
   border-color: var(--border) !important;
 }
-
 hr { border-color: var(--border) !important; }
-
 code, pre {
   background: var(--bg-float) !important;
   color: var(--teal-hi) !important;
@@ -354,19 +335,20 @@ code, pre {
 }
 
 // ════════════════════════════════════════
-//  FEATURED POST
+//  POST LIST  (index page)
 // ════════════════════════════════════════
-.featured-post {
-  display: block;
-  background: var(--bg-raised);
+.post-list { margin: 0 0 48px; }
+
+.post-item {
+  padding: 22px 24px 22px 28px;
   border: 1px solid var(--teal-bd);
   border-radius: 10px;
-  padding: 22px 26px 22px 30px;
+  background: var(--bg-raised);
+  position: relative;
   margin-bottom: 12px;
-  text-decoration: none !important;
-  color: inherit !important;
-  position: relative; overflow: hidden;
-  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, border-color 0.2s;
+
+  // left accent bar
   &::before {
     content: '';
     position: absolute;
@@ -377,48 +359,59 @@ code, pre {
   &:hover {
     background: var(--bg-float);
     border-color: rgba(78,205,196,0.38);
-    box-shadow: 0 4px 20px rgba(78,205,196,0.06);
-    text-decoration: none !important;
   }
 }
 
-.featured-label {
-  font-size: 9.5px; font-weight: 700; letter-spacing: .16em;
-  text-transform: uppercase; color: var(--teal) !important; margin-bottom: 6px;
-}
-.featured-post h2 {
-  font-size: 1.1rem !important; font-weight: 700 !important;
-  margin: 0 0 8px !important; color: var(--text-hi) !important;
-  line-height: 1.3 !important; border: none !important;
-}
-.featured-post p {
-  font-size: 0.87rem !important; color: var(--text-dim) !important;
-  line-height: 1.65 !important; margin: 0 0 10px !important;
-}
-.read-link {
-  font-size: 12px; font-weight: 700;
-  letter-spacing: .04em; color: var(--teal) !important;
+.post-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
-// ════════════════════════════════════════
-//  POST LIST
-// ════════════════════════════════════════
-.post-list {
-  list-style: none !important; padding: 0 !important; margin: 0 0 48px !important;
+.post-item-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--teal);
+  background: var(--teal-lo);
+  border: 1px solid var(--teal-bd);
+  padding: 2px 9px;
+  border-radius: 99px;
 }
-.post-list li {
-  padding: 11px 0; border-bottom: 1px solid var(--border);
-  display: flex; align-items: baseline; gap: 12px;
-  &:last-child { border-bottom: none; }
+
+.post-date {
+  font-size: 10.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
 }
-.post-list li a {
-  font-size: 0.93rem !important; font-weight: 600 !important;
-  color: var(--text-body) !important; transition: color 0.15s;
+
+.post-item-title {
+  display: block;
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: var(--text-hi) !important;
+  text-decoration: none !important;
+  margin-bottom: 8px;
+  line-height: 1.3;
   &:hover { color: var(--teal) !important; text-decoration: none !important; }
 }
-.post-date {
-  font-size: 10px; color: var(--text-faint);
-  white-space: nowrap; flex-shrink: 0;
+
+.post-item-desc {
+  font-size: 0.87rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  margin: 0 0 10px;
+}
+
+.post-item-link {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--teal) !important;
+  text-decoration: none !important;
+  &:hover { color: var(--teal-hi) !important; text-decoration: underline !important; }
 }
 
 // ════════════════════════════════════════
@@ -447,11 +440,17 @@ code, pre {
     border-bottom: 1px solid var(--border) !important;
     padding: 28px 24px !important;
   }
-  .header-tags { flex-direction: row; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; }
-  section { padding: 32px 24px !important; }
+  .header-tags {
+    flex-direction: row; flex-wrap: wrap;
+    border-top: 1px solid var(--border);
+    padding-top: 16px; margin-top: 16px;
+  }
+  section { padding: 32px 20px !important; }
   .hero h1 { font-size: 1.65rem !important; }
   .focus-grid { grid-template-columns: 1fr 1fr; }
+  .post-item { padding: 18px 18px 18px 24px; }
 }
 @media (max-width: 420px) {
   .focus-grid { grid-template-columns: 1fr; }
+  section { padding: 24px 16px !important; }
 }

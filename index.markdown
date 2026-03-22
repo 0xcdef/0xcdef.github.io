@@ -47,29 +47,19 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
   </div>
 </div>
 
-<!-- Featured Post -->
-<div class="section-heading">Featured Post</div>
-<a class="featured-post" href="/blog/skill-loop.html">
-  <div class="featured-label">Methodology &middot; March 2026</div>
-  <h2>Stop hoping your Claude skills work. Prove it.</h2>
-  <p>Introducing skill-loop &mdash; a step-by-step guide built on the Skills 2.0 methodology, covering creation, eval testing, A/B benchmarking, and trigger optimization.</p>
-  <span class="read-link">Read the post &rarr;</span>
-</a>
-
-<!-- All Posts -->
-<div class="section-heading">All Posts</div>
-<ul class="post-list">
-  {% for post in site.posts %}
-    <li>
-      <a href="{{ post.url }}">{{ post.title }}</a>
-      <span class="post-date">{{ post.date | date: "%b %-d, %Y" }}</span>
-    </li>
-  {% endfor %}
-  <li>
-    <a href="/blog/skill-loop.html">Stop hoping your Claude skills work. Prove it.</a>
-    <span class="post-date">Mar 21, 2026</span>
-  </li>
-</ul>
+<!-- Latest Writing -->
+<div class="section-heading">Latest Writing</div>
+<div class="post-list">
+  <div class="post-item">
+    <div class="post-item-meta">
+      <span class="post-item-tag">Methodology</span>
+      <span class="post-date">Mar 21, 2026</span>
+    </div>
+    <a class="post-item-title" href="/blog/skill-loop.html">Stop hoping your Claude skills work. Prove&nbsp;it.</a>
+    <p class="post-item-desc">Introducing skill-loop &mdash; a step-by-step guide built on the Skills 2.0 methodology, covering creation, eval testing, A/B benchmarking, and trigger optimization.</p>
+    <a class="post-item-link" href="/blog/skill-loop.html">Read the post &rarr;</a>
+  </div>
+</div>
 
 <!-- About -->
 <div class="about-strip">
