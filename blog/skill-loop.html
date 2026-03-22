@@ -146,14 +146,13 @@
     align-items: start;
   }
 
-  /* ── Responsive: single column below 780px ── */
+  /* ── Mobile: single column, sidebar hidden ── */
   @media (max-width: 780px) {
     .body-wrap {
       grid-template-columns: 1fr;
-      gap: 32px;
+      gap: 0;
     }
-    .sidebar { order: -1; }
-    .sidebar-card { padding: 18px; }
+    .sidebar { display: none; }
   }
 
   /* ── Article ── */
@@ -211,6 +210,7 @@
     border-radius: 12px;
     padding: 24px 20px;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .loop-diagram .loop-label {
     font-size: 10px;
@@ -224,9 +224,8 @@
     display: flex;
     align-items: center;
     gap: 0;
-    flex-wrap: wrap;
-    row-gap: 12px;
-    min-width: 320px;
+    flex-wrap: nowrap;
+    min-width: 360px;
   }
   .loop-step {
     display: flex;
@@ -295,7 +294,7 @@
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 20px 0; }
   .compare-table {
     width: 100%;
-    min-width: 340px;
+    min-width: 320px;
     border-collapse: collapse;
     font-size: 14px;
   }
@@ -357,7 +356,7 @@
   .skill-card p { font-size: 13px; color: var(--ink2); margin: 0; }
   .skill-card .sk-lifespan { margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--ink3); }
 
-  /* ── Sidebar ── */
+  /* ── Sidebar (desktop only) ── */
   .sidebar {
     position: sticky;
     top: 16px;
@@ -459,22 +458,22 @@
     <p>Skills 1.0 gave you a <code>SKILL.md</code> file and told you to write good instructions. There was no way to measure whether those instructions were actually working — whether your skill was making outputs better or just adding noise. You were flying blind, optimizing by feel, crossing your fingers every time Claude loaded your skill.</p>
 
     <div class="pull">
-      <p>“You go from a skill you hope works to a skill you’ve actually proven works.”</p>
+      <p>"You go from a skill you hope works to a skill you've actually proven works."</p>
     </div>
 
     <p>Skills 2.0 changes that. It introduces structured evaluation, blind A/B benchmarking, and trigger optimization — transforming skill-building from guesswork into a feedback loop you can trust.</p>
-    <p><strong>skill-loop</strong> is a guide skill that walks you through this entire methodology, step by step — whether you’re creating a skill from scratch or auditing one that’s been sitting untouched for months.</p>
+    <p><strong>skill-loop</strong> is a guide skill that walks you through this entire methodology, step by step — whether you're creating a skill from scratch or auditing one that's been sitting untouched for months.</p>
 
     <div class="divider"></div>
 
     <h2>Two types of skills. One methodology.</h2>
-    <p>Before building anything, you need to know what kind of skill you’re building. The type shapes everything — how you write it, how long it stays useful, how aggressively you test it.</p>
+    <p>Before building anything, you need to know what kind of skill you're building. The type shapes everything — how you write it, how long it stays useful, how aggressively you test it.</p>
 
     <div class="skill-cards">
       <div class="skill-card sk-cap">
         <span class="sk-badge">Capability Uplift</span>
         <h4>Teaches Claude something new</h4>
-        <p>Your brand voice. A proprietary checklist. Industry-specific knowledge Claude doesn’t have by default.</p>
+        <p>Your brand voice. A proprietary checklist. Industry-specific knowledge Claude doesn't have by default.</p>
         <div class="sk-lifespan">⚠ Expires as Claude improves</div>
       </div>
       <div class="skill-card sk-pref">
@@ -485,7 +484,7 @@
       </div>
     </div>
 
-    <p>This distinction matters more than it seems. Capability Uplift skills have an expiration date — as Claude’s base model improves, they can actually start <em>holding Claude back</em>. Encoded Preference skills are more durable, because they’re not teaching Claude how to write — they’re telling Claude <em>your</em> specific way to write.</p>
+    <p>This distinction matters more than it seems. Capability Uplift skills have an expiration date — as Claude's base model improves, they can actually start <em>holding Claude back</em>. Encoded Preference skills are more durable, because they're not teaching Claude how to write — they're telling Claude <em>your</em> specific way to write.</p>
 
     <div class="divider"></div>
 
@@ -510,11 +509,11 @@
 
     <h3>Path A — Building a new skill</h3>
     <p>Start by capturing intent before writing a single line of <code>SKILL.md</code>. Answer three questions:</p>
-    <p><strong>What should this skill enable Claude to do?</strong> Be specific. “Write landing pages in my brand voice” beats “write better content” every time.</p>
+    <p><strong>What should this skill enable Claude to do?</strong> Be specific. "Write landing pages in my brand voice" beats "write better content" every time.</p>
     <p><strong>When should it trigger?</strong> What words or contexts should load the skill?</p>
     <p><strong>What does good output look like?</strong> Format, tone, structure, length — define it before you need to judge it.</p>
     <p>Then write your <code>SKILL.md</code>. The body is straightforward: instructions, output format, examples. But the <strong>description field</strong> is where most skills fail silently.</p>
-    <p>The description is the trigger mechanism. Claude reads it to decide whether to load your skill at all. If it’s too vague, the skill never fires. If it’s too narrow, it misses the edge cases. The skill-loop guide teaches you to write descriptions that are deliberately “pushy” — Claude tends to undertrigger, so you need to compensate.</p>
+    <p>The description is the trigger mechanism. Claude reads it to decide whether to load your skill at all. If it's too vague, the skill never fires. If it's too narrow, it misses the edge cases. The skill-loop guide teaches you to write descriptions that are deliberately "pushy" — Claude tends to undertrigger, so you need to compensate.</p>
 
     <div class="cmd">
       <span class="comment"># ❌ Too vague — undertriggers</span><br>
@@ -522,18 +521,18 @@
       <span class="comment"># ✅ Pushy and specific — fires when it should</span><br>
       description: Writes blog posts in [your style]. Use whenever<br>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the user asks to write, draft, or create any<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long-form content — even without saying “blog post.”
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; long-form content — even without saying "blog post."
     </div>
 
     <h3>Path B — Improving an existing skill</h3>
-    <p>If you have a skill that feels off, inconsistent, or was written before Skills 2.0 — don’t touch it yet. Run evals first to get a baseline score. Even a low score (3 out of 9) is valuable: it tells you where you are, so you can prove progress later.</p>
+    <p>If you have a skill that feels off, inconsistent, or was written before Skills 2.0 — don't touch it yet. Run evals first to get a baseline score. Even a low score (3 out of 9) is valuable: it tells you where you are, so you can prove progress later.</p>
     <p>Then ask the most important question most skill builders never ask: is this skill still earning its place?</p>
 
     <div class="divider"></div>
 
     <h2>A/B benchmarking — the question nobody asks</h2>
     <p>Say you built a skill six months ago to help Claude write landing pages. At the time, Claude needed detailed instructions to do it well. Then Anthropic released a smarter model. Now Claude is already great at landing pages — but your old skill is still loaded, still forcing it through a rigid set of steps written for a less capable model.</p>
-    <p>Your skill is actively making outputs worse. And you’d never know without testing it.</p>
+    <p>Your skill is actively making outputs worse. And you'd never know without testing it.</p>
     <p>A/B benchmarking runs the same prompts twice — once with your skill, once without — and has a blind comparator agent judge both outputs without knowing which is which. No bias. Just a result.</p>
 
     <div class="table-wrap">
@@ -547,7 +546,7 @@
     </table>
     </div>
 
-    <p>Here’s what that looks like visually — a skill that’s clearly earning its place vs one that’s become dead weight:</p>
+    <p>Here's what that looks like visually — a skill that's clearly earning its place vs one that's become dead weight:</p>
     <p style="font-size:12px;font-weight:600;color:var(--ink3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Strong skill (wins 78%)</p>
     <div class="ab-bar">
       <div class="ab-skill" style="width:78%"><span>Skill: 78%</span></div>
@@ -563,32 +562,32 @@
 
     <h2>When to use skill-loop</h2>
     <p>Use it when:</p>
-    <p>— You want to build a new skill but aren’t sure where to start<br>
-    — You have an existing skill that “feels off” but you can’t pinpoint why<br>
+    <p>— You want to build a new skill but aren't sure where to start<br>
+    — You have an existing skill that "feels off" but you can't pinpoint why<br>
     — A Claude model update has shipped and you want to check if your skills still hold up<br>
     — You want to know whether a skill is actually helping — or just adding complexity<br>
-    — Your skill fires at the wrong times, or doesn’t fire when it should</p>
+    — Your skill fires at the wrong times, or doesn't fire when it should</p>
 
     <h3>Key commands to know</h3>
     <div class="cmd">
       <span class="comment"># Create a new skill</span><br>
-      “Create a skill that helps me [describe task]”<br><br>
+      "Create a skill that helps me [describe task]"<br><br>
       <span class="comment"># Test an existing skill</span><br>
-      “Run evals on my [skill name] skill”<br><br>
+      "Run evals on my [skill name] skill"<br><br>
       <span class="comment"># Compare to raw Claude</span><br>
-      “Benchmark my [skill name] against raw Claude”<br><br>
+      "Benchmark my [skill name] against raw Claude"<br><br>
       <span class="comment"># Fix a specific failure</span><br>
-      “Update the skill to fix [specific problem]”<br><br>
+      "Update the skill to fix [specific problem]"<br><br>
       <span class="comment"># Optimize when it triggers</span><br>
-      “Optimize the description of my [skill name] skill”
+      "Optimize the description of my [skill name] skill"
     </div>
 
     <div class="divider"></div>
 
     <h2>The shift that changes everything</h2>
     <p>Skills 1.0 was a template. You wrote instructions and hoped Claude followed them. Skills 2.0 is a feedback loop — you test, you measure, you prove improvement, you repeat.</p>
-    <p>The developers who run evals will build better skills than those who don’t. That’s not an opinion — it’s just math. One reported improving a skill’s success rate from 67% to 94% in two optimization cycles, not by guessing better, but by testing systematically.</p>
-    <p>skill-loop exists to make that process accessible whether you’re a first-time skill author or someone with a library of skills that’s never been properly tested. Install it, run it, trust the loop.</p>
+    <p>The developers who run evals will build better skills than those who don't. That's not an opinion — it's just math. One reported improving a skill's success rate from 67% to 94% in two optimization cycles, not by guessing better, but by testing systematically.</p>
+    <p>skill-loop exists to make that process accessible whether you're a first-time skill author or someone with a library of skills that's never been properly tested. Install it, run it, trust the loop.</p>
 
   </article>
 
@@ -606,7 +605,7 @@
     </div>
     <div class="sidebar-card">
       <h4>Quick cheatsheet — Improve skill</h4>
-      <div class="cheatsheet-item"><div class="step-n">1</div><div class="step-text"><strong>Diagnose</strong>What’s wrong? When was it last updated?</div></div>
+      <div class="cheatsheet-item"><div class="step-n">1</div><div class="step-text"><strong>Diagnose</strong>What's wrong? When was it last updated?</div></div>
       <div class="cheatsheet-item"><div class="step-n">2</div><div class="step-text"><strong>Baseline eval</strong>Get a score before changing anything</div></div>
       <div class="cheatsheet-item"><div class="step-n">3</div><div class="step-text"><strong>A/B check</strong>Is it still needed, or has Claude improved past it?</div></div>
       <div class="cheatsheet-item"><div class="step-n">4</div><div class="step-text"><strong>Fix failure patterns</strong>One issue at a time, retest after each</div></div>
@@ -614,7 +613,7 @@
     </div>
     <div class="sidebar-card" style="background:var(--ink);border-color:var(--ink)">
       <h4 style="color:rgba(247,245,240,.4)">Maintenance rule</h4>
-      <p style="font-size:13px;color:rgba(247,245,240,.7);line-height:1.6;margin:0">If you haven’t re-evaluated a skill in <strong style="color:var(--accent2)">3 months</strong>, treat it as unverified. Run an A/B benchmark after every major Claude model update.</p>
+      <p style="font-size:13px;color:rgba(247,245,240,.7);line-height:1.6;margin:0">If you haven't re-evaluated a skill in <strong style="color:var(--accent2)">3 months</strong>, treat it as unverified. Run an A/B benchmark after every major Claude model update.</p>
     </div>
   </aside>
 </div>
