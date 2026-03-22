@@ -1,8 +1,10 @@
 # Site settings
-title: "->C->D->E->F->"
+title: "0xcdef"
+tagline: "AI & Agents for Modern ASIC/SoC Design"
 email: curliph@gmail.com
 description: >-
-  AI & Agent technology for modern ASIC/SoC chip design.
+  Engineer at the intersection of AI/LLM agents and modern ASIC/SoC chip design.
+  Writing about EDA automation, RTL intelligence, and the future of hardware development.
 baseurl: ""
 url: ""
 twitter_username: curliph
