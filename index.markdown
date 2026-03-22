@@ -56,8 +56,8 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
       <span class="post-item-tag">Tutorial</span>
       <span class="post-date">Mar 22, 2026</span>
     </div>
-    <a class="post-item-title" href="/blog/claude-mcp-github-pages.html">Building a GitHub Pages Site with Claude &amp;&nbsp;MCP</a>
-    <p class="post-item-desc">How to wire Claude Desktop to your GitHub repo via MCP, push a Jekyll site, iterate on UI design through conversation, and publish blog posts &mdash; all without leaving the chat.</p>
+    <a class="post-item-title" href="/blog/claude-mcp-github-pages.html">Build and ship a GitHub Pages site entirely through&nbsp;Claude.</a>
+    <p class="post-item-desc">How to connect Claude Desktop to GitHub via MCP, scaffold a Jekyll site, design it iteratively, and publish blog posts &mdash; all from a single conversation.</p>
     <a class="post-item-link" href="/blog/claude-mcp-github-pages.html">Read the post &rarr;</a>
   </div>
 
