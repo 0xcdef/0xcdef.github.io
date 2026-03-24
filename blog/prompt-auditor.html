@@ -129,7 +129,17 @@
     line-height: 1.35; color: var(--ink); margin: 0; font-style: italic;
   }
 
-  code { font-family: var(--mono); font-size: 13px; background: var(--bg2); color: var(--accent); padding: 2px 6px; border-radius: 4px; }
+  code {
+    font-family: var(--mono); font-size: 13px;
+    background: var(--bg2); color: var(--accent);
+    padding: 2px 6px; border-radius: 4px;
+  }
+
+  /* ── code inside dark sidebar card ── */
+  .sidebar-card.dark code {
+    background: rgba(255,255,255,.08);
+    color: #A8E6CF;
+  }
 
   .cmd {
     background: var(--ink); color: #A8E6CF; font-family: var(--mono); font-size: 13px;
@@ -196,6 +206,16 @@
     padding: clamp(24px, 4vw, 40px); text-align: center; font-size: 12px;
   }
   footer strong { color: rgba(247,245,240,.7); }
+
+  /* ── download button ── */
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--ink); color: #F7F5F0; text-decoration: none;
+    padding: 12px 22px; border-radius: 8px; font-family: var(--mono);
+    font-size: 13px; font-weight: 600; letter-spacing: .04em;
+    border: none; cursor: pointer; transition: opacity .15s;
+  }
+  .dl-btn:hover { opacity: .78; }
 </style>
 </head>
 <body>
@@ -368,15 +388,7 @@ Then give me:
 
     <p>The Prompt Auditor is a plain-text Markdown skill file. Save it as <code>SKILL.md</code> inside a <code>prompt-auditor/</code> folder in your skills directory and Claude will automatically use it.</p>
 
-    <a href="/assets/skills/prompt-auditor/SKILL.md" download="SKILL.md" style="
-      display: inline-flex; align-items: center; gap: 10px;
-      background: var(--ink); color: #F7F5F0; text-decoration: none;
-      padding: 12px 22px; border-radius: 8px; font-family: var(--mono);
-      font-size: 13px; font-weight: 600; letter-spacing: .04em;
-      transition: opacity .15s;
-    " onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-      &#x2193; &nbsp;Download SKILL.md
-    </a>
+    <button class="dl-btn" onclick="downloadSkill()">&#x2193; &nbsp;Download SKILL.md</button>
 
     <div class="divider"></div>
 
@@ -398,7 +410,7 @@ Then give me:
 
     <div class="sidebar-card dark">
       <h4>Install instructions</h4>
-      <p>Download SKILL.md → place it at <code style="color:#A8E6CF">skills/prompt-auditor/SKILL.md</code> → restart Claude Code or Cowork.</p>
+      <p>Download SKILL.md &rarr; place it at <code>skills/prompt-auditor/SKILL.md</code> &rarr; restart Claude Code or Cowork.</p>
     </div>
   </aside>
 </div>
@@ -406,6 +418,25 @@ Then give me:
 <footer>
   <strong>0xcdef</strong> · AI &amp; Agents for ASIC/SoC Design
 </footer>
+
+<script>
+  async function downloadSkill() {
+    const rawUrl = 'https://raw.githubusercontent.com/0xcdef/0xcdef.github.io/main/assets/skills/prompt-auditor/SKILL.md';
+    try {
+      const res = await fetch(rawUrl);
+      const text = await res.text();
+      const blob = new Blob([text], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'SKILL.md';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      // Fallback: open raw file in new tab
+      window.open(rawUrl, '_blank');
+    }
+  }
+</script>
 
 </body>
 </html>
