@@ -53,6 +53,16 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
 
   <div class="post-item">
     <div class="post-item-meta">
+      <span class="post-item-tag">Deep Dive</span>
+      <span class="post-date">Mar 24, 2026</span>
+    </div>
+    <a class="post-item-title" href="/blog/ebook-rag-knowledge-base.html">Turn your PDF library into a knowledge base Claude actually&nbsp;uses.</a>
+    <p class="post-item-desc">A complete build log for ebook-rag: semantic search over technical books, pluggable embedding backends, streaming LLM answers, and Claude Code skills that auto-activate when you need them.</p>
+    <a class="post-item-link" href="/blog/ebook-rag-knowledge-base.html">Read the post &rarr;</a>
+  </div>
+
+  <div class="post-item">
+    <div class="post-item-meta">
       <span class="post-item-tag">Methodology</span>
       <span class="post-date">Mar 24, 2026</span>
     </div>

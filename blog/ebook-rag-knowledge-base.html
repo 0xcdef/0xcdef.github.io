@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Turn your PDF library into a knowledge base Claude actually uses — 0xcdef</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap');
+
+  :root {
+    --bg:          #F7F5F0;
+    --bg2:         #EDEAE2;
+    --ink:         #1A1916;
+    --ink2:        #5A5850;
+    --ink3:        #8A8880;
+    --accent:      #C4572A;
+    --accent2:     #E8A060;
+    --teal:        #1D7A6A;
+    --teal-light:  #E2F3EF;
+    --border:      #D8D4CA;
+    --card:        #FFFFFF;
+    --serif:       'DM Serif Display', Georgia, serif;
+    --sans:        'DM Sans', system-ui, sans-serif;
+    --mono:        'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink2);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .masthead {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .masthead .logo {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    opacity: .7;
+  }
+  .masthead .sep { opacity: .25; margin: 0 4px; }
+  .masthead .badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .masthead a.home-link {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(247,245,240,.5);
+    text-decoration: none;
+    margin-left: auto;
+  }
+  .masthead a.home-link:hover { color: rgba(247,245,240,.85); }
+
+  .hero {
+    background: var(--ink);
+    padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px) clamp(36px, 7vw, 70px);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,87,42,.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,122,106,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 6vw, 58px);
+    line-height: 1.08;
+    color: #F7F5F0;
+    margin-bottom: 20px;
+    max-width: 640px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent2); }
+  .hero-sub {
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: rgba(247,245,240,.6);
+    line-height: 1.6;
+    max-width: 560px;
+    margin-bottom: 28px;
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: rgba(247,245,240,.45);
+  }
+
+  .body-wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: clamp(32px, 5vw, 60px) clamp(16px, 4vw, 40px);
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: clamp(24px, 4vw, 60px);
+    align-items: start;
+  }
+  @media (max-width: 780px) {
+    .body-wrap { grid-template-columns: 1fr; gap: 0; }
+    .sidebar   { display: none; }
+  }
+
+  article { min-width: 0; }
+
+  article h2 {
+    font-family: var(--serif);
+    font-size: clamp(22px, 4vw, 30px);
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 48px 0 14px;
+  }
+  article h2:first-child { margin-top: 0; }
+
+  article h3 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 32px 0 10px;
+  }
+
+  article p     { margin-bottom: 18px; color: var(--ink2); }
+  article strong{ font-weight: 600; }
+  article em    { font-style: italic; }
+  article a {
+    color: var(--teal);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 36px 0; }
+
+  .pull {
+    border-left: 3px solid var(--accent);
+    padding: 14px 20px;
+    margin: 28px 0;
+    background: var(--card);
+    border-radius: 0 8px 8px 0;
+  }
+  .pull p {
+    font-family: var(--serif);
+    font-size: clamp(17px, 3vw, 22px);
+    line-height: 1.35;
+    color: var(--ink);
+    margin: 0;
+    font-style: italic;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--bg2);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .cmd {
+    background: var(--ink);
+    color: #A8E6CF;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 16px 0;
+    line-height: 1.7;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cmd .comment { color: rgba(168,230,207,.35); }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  @media (max-width: 480px) { .card-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    background: var(--card);
+  }
+  .card .badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .badge-accent { background: #FEF3EC; color: var(--accent); }
+  .badge-teal   { background: var(--teal-light); color: var(--teal); }
+
+  .card h4 {
+    font-family: var(--serif);
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: var(--ink);
+    margin-bottom: 7px;
+  }
+  .card p   { font-size: 13px; color: var(--ink2); margin: 0; }
+  .card .note { margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--ink3); }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 20px 0; }
+  .data-table {
+    width: 100%;
+    min-width: 320px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .data-table th {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 9px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .data-table th:first-child { border-radius: 8px 0 0 0; }
+  .data-table th:last-child  { border-radius: 0 8px 0 0; }
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--card); }
+  .text-good { color: var(--teal);   font-weight: 600; }
+  .text-warn { color: #A06010;       font-weight: 600; }
+  .text-bad  { color: #C04040;       font-weight: 600; }
+
+  .bar-wrap { margin: 10px 0; }
+  .bar-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink3);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .bar {
+    background: var(--bg2);
+    border-radius: 8px;
+    overflow: hidden;
+    height: 26px;
+    display: flex;
+  }
+  .bar-fill  { background: var(--teal);  height: 100%; display: flex; align-items: center; padding: 0 8px; }
+  .bar-rest  { background: var(--border); height: 100%; display: flex; align-items: center; padding: 0 8px; }
+  .bar span  { font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; }
+  .bar-rest span { color: var(--ink2); }
+
+  .sidebar {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .sidebar-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .sidebar-card h4 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 14px;
+  }
+  .sidebar-card.dark {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .sidebar-card.dark h4 { color: rgba(247,245,240,.4); }
+  .sidebar-card.dark p  { font-size: 13px; color: rgba(247,245,240,.7); line-height: 1.6; margin: 0; }
+
+  .step-row {
+    display: flex;
+    gap: 9px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 20px; height: 20px;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text         { color: var(--ink2); line-height: 1.4; }
+  .step-text strong  { color: var(--ink); display: block; margin-bottom: 2px; }
+
+  footer {
+    background: var(--ink);
+    color: rgba(247,245,240,.4);
+    padding: clamp(24px, 4vw, 40px);
+    text-align: center;
+    font-size: 12px;
+  }
+  footer strong { color: rgba(247,245,240,.7); }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <span class="logo">0xcdef</span>
+  <span class="sep">&middot;</span>
+  <span class="logo">AI &amp; Agents</span>
+  <a class="home-link" href="/">&larr; Home</a>
+  <span class="badge">Deep Dive</span>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Build Log &middot; Retrieval-Augmented Generation</div>
+    <h1>Turn your PDF library into a knowledge base <em>Claude&nbsp;actually uses.</em></h1>
+    <p class="hero-sub">
+      A complete walkthrough of building ebook-rag: semantic search over technical books,
+      pluggable embeddings, streaming LLM answers, and Claude Code skills that
+      auto-activate when you need them.
+    </p>
+    <div class="hero-meta">
+      <span>RAG &middot; Mar 24, 2026</span>
+      <span>&middot;</span>
+      <span>14 min read</span>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+  <article>
+
+    <h2>The problem with technical books and AI</h2>
+
+    <p>Technical books are dense, authoritative, and expensive to re-read. When you're deep in a problem and need to know what a specific book says about a topic, your options are bad: grep through a PDF, scan a table of contents, or paste hundreds of pages into a context window and pay for it every query.</p>
+
+    <p>The better path is a local RAG system — but most tutorials stop at "embed some text and do cosine search." Production use requires more: multiple books, multiple embedding backends, provider-agnostic LLM config, and integration with your AI coding environment so retrieval happens automatically.</p>
+
+    <p>This is a build log for <code>ebook-rag</code>, a tool that covers all of that. It started as a conversation and grew into ~4,000 lines of Python across six files. Here's what was built, what tradeoffs were made, and why.</p>
+
+    <div class="pull">
+      <p>"The KB is a trusted domain reference — use it to inform and ground your reasoning, not to constrain it."</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Architecture: three stages</h2>
+
+    <p>The system has a clean separation between ingest time and query time, with a shared embedding layer in between.</p>
+
+    <h3>Stage 1 — Ingest</h3>
+    <p><code>ingest.py</code> converts a PDF into a structured directory. It detects the table of contents (PDF bookmarks first, then font-size heading detection as fallback), splits the book by chapter, converts each chapter to markdown using whichever PDF backend is available, embeds the chunks, and writes a <code>vector_index.pkl</code> alongside generated <code>CLAUDE.md</code> and <code>SKILL.md</code> files.</p>
+
+    <div class="cmd">
+      <span class="comment"># Simplest usage — auto-detects best available backends</span><br>
+      python ingest.py mybook.pdf<br><br>
+      <span class="comment"># Explicit: best PDF quality + Voyage AI embeddings</span><br>
+      python ingest.py mybook.pdf --backend pymupdf4llm --embed api --embed-model voyage-3-lite
+    </div>
+
+    <h3>Stage 2 — Embeddings</h3>
+    <p><code>embeddings.py</code> defines a common <code>EmbeddingBackend</code> interface with five implementations. Every backend exposes <code>embed_documents(texts)</code> and <code>embed_query(text)</code>, both returning L2-normalised float32 arrays. The index stores which backend generated it, so query time automatically uses the same one.</p>
+
+    <h3>Stage 3 — Query</h3>
+    <p><code>query.py</code> auto-discovers KB directories, embeds the question, retrieves the top-k chunks by cosine similarity, builds a grounded prompt, and streams the answer token-by-token using SSE. It works across multiple books simultaneously — results are deduplicated by chunk ID, and when answers span more than one book the system prompt switches to a synthesis mode that asks the model to explicitly compare sources.</p>
+
+    <div class="divider"></div>
+
+    <h2>Embedding backends: the critical choice</h2>
+
+    <p>TF-IDF was the starting point — zero dependencies, always works. But scores cluster tightly between 0.10 and 0.20 with little discrimination. A question about "gradient descent" won't match a chunk that says "backpropagation" even though they're conceptually the same thing. Semantic embeddings fix this at the cost of a dependency.</p>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Backend</th><th>Quality</th><th>Install</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>tfidf</strong></td>
+            <td class="text-bad">keyword only</td>
+            <td>none</td>
+            <td>Always available. Fallback.</td>
+          </tr>
+          <tr>
+            <td><strong>fastembed</strong></td>
+            <td class="text-warn">good</td>
+            <td><code>pip install fastembed</code></td>
+            <td>ONNX, no GPU, ~80 MB. New default.</td>
+          </tr>
+          <tr>
+            <td><strong>sentence-transformers</strong></td>
+            <td class="text-good">very good</td>
+            <td><code>pip install sentence-transformers</code></td>
+            <td>PyTorch. Best local quality.</td>
+          </tr>
+          <tr>
+            <td><strong>api (Voyage)</strong></td>
+            <td class="text-good">best</td>
+            <td><code>VOYAGE_API_KEY</code></td>
+            <td>voyage-3-lite beats OpenAI-v3-large by 3.8% at same price.</td>
+          </tr>
+          <tr>
+            <td><strong>ollama</strong></td>
+            <td class="text-warn">good</td>
+            <td><code>ollama pull nomic-embed-text</code></td>
+            <td>Fully local. WSL2 needs Windows host IP.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The key design decision was making backends pluggable at both ingest and query time. The index stores the backend name and model name in the pickle file. When you run a query, it reads those fields and instantiates the same backend automatically — no flags needed.</p>
+
+    <div class="divider"></div>
+
+    <h2>LLM config: five-level priority chain</h2>
+
+    <p>The tool targets people who run multiple LLM providers — Anthropic for quality, Groq for speed, a local Ollama instance for sensitive documents. Hard-coding any provider would make it useless for half the use cases.</p>
+
+    <p><code>llm_config.py</code> resolves <code>base_url</code>, <code>api_key</code>, and <code>model</code> independently through five layers:</p>
+
+    <div class="cmd">
+      1. CLI flags       --base-url  --api-key  --model<br>
+      2. Env vars        ANTHROPIC_BASE_URL  ANTHROPIC_AUTH_TOKEN  ANTHROPIC_MODEL<br>
+      3. .env file       ./kb_dir/.env  or  ./.env<br>
+      4. settings.json   ~/.claude/settings.json  (Claude Code format)<br>
+      5. Built-in        api.anthropic.com / claude-sonnet-4-6
+    </div>
+
+    <p>The <code>settings.json</code> layer deserves a note: Claude Code stores its configuration in <code>{ "env": { "ANTHROPIC_AUTH_TOKEN": "...", "ANTHROPIC_BASE_URL": "...", "ANTHROPIC_MODEL": "..." } }</code>. If you've already configured Claude Code with a custom provider, <code>query.py</code> picks it up automatically with no extra setup. That was the whole point of reading the actual file format rather than guessing.</p>
+
+    <div class="divider"></div>
+
+    <h2>Reference mode vs strict mode</h2>
+
+    <p>The most important design decision was how the LLM should treat the retrieved content. Two failure modes to avoid:</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="badge badge-accent">Too strict</span>
+        <h4>"I can only answer from retrieved text"</h4>
+        <p>Refuses to reason beyond exact chunk content. Misses obvious inferences. Brittle when retrieval is imperfect.</p>
+        <div class="note">⚠ Frustrating for knowledge work</div>
+      </div>
+      <div class="card">
+        <span class="badge badge-teal">Too loose</span>
+        <h4>"I'll use the KB as a hint"</h4>
+        <p>Ignores authoritative source content. Falls back to training data when the book explicitly says otherwise.</p>
+        <div class="note">⚠ Defeats the purpose of the KB</div>
+      </div>
+    </div>
+
+    <p>The solution is <strong>reference mode</strong> — the default. The KB is treated as the primary domain authority: if a retrieved chunk contradicts the model's training knowledge, the chunk wins. But the model can infer, synthesise, and extend beyond the exact retrieved text. Where the KB is silent, it answers from general knowledge and flags it explicitly with "(from general knowledge: ...)". This mirrors how a human expert consults a textbook — authoritative reference, not a constraint.</p>
+
+    <p><strong>Strict mode</strong> still exists for cases where zero hallucination is the requirement: auditing, compliance, "only quote the spec."</p>
+
+    <div class="divider"></div>
+
+    <h2>Claude Code integration: three layers</h2>
+
+    <p>The KB is most valuable when it activates without being asked. Claude Code's skill system makes this possible — but the mechanism is subtle enough that it's worth explaining.</p>
+
+    <h3>Layer 1 — Project root CLAUDE.md</h3>
+    <p>Every ingest run writes (or updates) a <code>CLAUDE.md</code> in the parent directory listing all indexed books, their chapter coverage, and topic keywords. When Claude Code starts a session in that directory, it reads this file and knows the full KB inventory before the first message.</p>
+
+    <h3>Layer 2 — Book-level CLAUDE.md</h3>
+    <p>Each KB directory has its own <code>CLAUDE.md</code> with the exact <code>query.py</code> invocation, both reference and strict mode commands, the topic keyword cloud for matching, and the chapter index. Claude reading this file during a session gets concrete action steps, not just documentation.</p>
+
+    <h3>Layer 3 — SKILL.md for auto-activation</h3>
+    <p>Written to <code>.claude/skills/kb-&lt;book-slug&gt;/SKILL.md</code>, this is what Claude Code uses for automatic skill triggering. The <code>description</code> field in the YAML frontmatter lists all chapter titles and top keywords — that's what Claude reads to decide whether to activate the skill. The body gives step-by-step retrieval instructions and the reference-mode usage philosophy.</p>
+
+    <div class="cmd">
+      <span class="comment"># What auto-generated SKILL.md frontmatter looks like</span><br>
+      ---<br>
+      name: kb-deep-learning-book<br>
+      description: |<br>
+      &nbsp;&nbsp;Reference knowledge base for "Deep Learning".<br>
+      &nbsp;&nbsp;Use when the conversation involves: Neural Networks; Backpropagation;<br>
+      &nbsp;&nbsp;Convolutional Networks; Attention; Transformers; Optimisation.<br>
+      &nbsp;&nbsp;Key concepts: gradient, layer, weight, loss, activation, batch...<br>
+      &nbsp;&nbsp;Consult whenever uncertain — trusted reference, not a constraint.<br>
+      allowed-tools: Bash<br>
+      ---
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Streaming: eliminating the long wait</h2>
+
+    <p>The original implementation used <code>resp.read()</code> — one blocking call that waited for the entire response before printing anything. On a complex multi-book query this meant 15–30 seconds of silence. The fix was straightforward: add <code>"stream": true</code> to the request payload and iterate the response line-by-line.</p>
+
+    <p>The Anthropic SSE format sends <code>data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"Hello"}}</code> events. OpenAI-compatible providers send <code>data: {"choices":[{"delta":{"content":"Hello"}}]}</code>. Both are handled in <code>_stream_response()</code> — the parser checks which shape it received and extracts accordingly. First token clears the "thinking..." indicator and prints the answer header; subsequent tokens print immediately with <code>flush=True</code>.</p>
+
+    <div class="pull">
+      <p>"The wait isn't the model thinking — it's buffering. Streaming makes the same computation feel instant."</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>What's in the box</h2>
+
+    <p>The final package is six files and a <code>requirements.txt</code>. Everything uses stdlib where possible — no LangChain, no vector database, no heavyweight frameworks. The embedding layer is the only third-party dependency beyond PDF parsing and numpy.</p>
+
+    <div class="bar-wrap">
+      <div class="bar-label">ingest.py (1 400 lines)</div>
+      <div class="bar">
+        <div class="bar-fill" style="width:38%"><span>38%</span></div>
+        <div class="bar-rest" style="width:62%"><span>PDF pipeline</span></div>
+      </div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-label">query.py (940 lines)</div>
+      <div class="bar">
+        <div class="bar-fill" style="width:25%"><span>25%</span></div>
+        <div class="bar-rest" style="width:75%"><span>search + LLM</span></div>
+      </div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-label">embeddings.py (610 lines)</div>
+      <div class="bar">
+        <div class="bar-fill" style="width:17%"><span>17%</span></div>
+        <div class="bar-rest" style="width:83%"><span>5 backends</span></div>
+      </div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-label">llm_config.py + progress.py (490 lines)</div>
+      <div class="bar">
+        <div class="bar-fill" style="width:13%"><span>13%</span></div>
+        <div class="bar-rest" style="width:87%"><span>config + UX</span></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Get started in four commands</h2>
+
+    <div class="cmd">
+      <span class="comment"># Install the recommended stack</span><br>
+      pip install pdfplumber pymupdf4llm fastembed<br><br>
+      <span class="comment"># Ingest a book</span><br>
+      python ingest.py mybook.pdf --out ./kb_mybook<br><br>
+      <span class="comment"># Ask anything</span><br>
+      python query.py "how does attention work?"<br><br>
+      <span class="comment"># Or interactively</span><br>
+      python query.py
+    </div>
+
+    <p>The full source, README, and requirements file are in the <a href="https://github.com/0xcdef">GitHub repo</a>. The next steps on the roadmap are BM25 as a better no-install fallback, smarter chunk overlap to avoid mid-concept splits, and cross-encoder reranking as a second-pass quality pass on retrieved results.</p>
+
+  </article>
+
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h4>Quick setup</h4>
+      <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Install</strong>pip install pdfplumber pymupdf4llm fastembed</div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Ingest</strong>python ingest.py book.pdf --out ./kb</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Query</strong>python query.py "your question"</div></div>
+      <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Claude Code</strong>Open the project dir — skills auto-activate</div></div>
+      <div class="step-row"><div class="step-num">5</div><div class="step-num" style="background:var(--teal)">★</div><div class="step-text"><strong>Upgrade</strong>export VOYAGE_API_KEY=... and re-ingest for best retrieval quality</div></div>
+    </div>
+    <div class="sidebar-card dark">
+      <h4>Reference vs strict</h4>
+      <p>Default is reference mode: KB wins over training knowledge, but the model reasons freely beyond it. Use --mode strict only when zero hallucination is a hard requirement.</p>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <strong>0xcdef</strong> &middot; AI &amp; Agents for ASIC/SoC Design
+</footer>
+
+</body>
+</html>
