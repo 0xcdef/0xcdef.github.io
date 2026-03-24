@@ -366,16 +366,16 @@ Then give me:
 
     <h2>Get the skill</h2>
 
-    <p>The Prompt Auditor is packaged as a ready-to-install Claude skill. Drop it into your skills folder and Claude will automatically audit setups whenever you ask — no manual prompting required.</p>
+    <p>The Prompt Auditor is a plain-text Markdown skill file. Save it as <code>SKILL.md</code> inside a <code>prompt-auditor/</code> folder in your skills directory and Claude will automatically use it.</p>
 
-    <a href="/assets/skills/prompt-auditor.skill" download style="
+    <a href="/assets/skills/prompt-auditor/SKILL.md" download="SKILL.md" style="
       display: inline-flex; align-items: center; gap: 10px;
       background: var(--ink); color: #F7F5F0; text-decoration: none;
       padding: 12px 22px; border-radius: 8px; font-family: var(--mono);
       font-size: 13px; font-weight: 600; letter-spacing: .04em;
       transition: opacity .15s;
     " onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
-      &#x2193; &nbsp;Download prompt-auditor.skill
+      &#x2193; &nbsp;Download SKILL.md
     </a>
 
     <div class="divider"></div>
@@ -397,8 +397,8 @@ Then give me:
     </div>
 
     <div class="sidebar-card dark">
-      <h4>Rule of thumb</h4>
-      <p>If a rule only fixed one bad output and that output hasn't recurred, the rule doesn't belong in a permanent setup. Rules should improve every output, not patch one failure.</p>
+      <h4>Install instructions</h4>
+      <p>Download SKILL.md → place it at <code style="color:#A8E6CF">skills/prompt-auditor/SKILL.md</code> → restart Claude Code or Cowork.</p>
     </div>
   </aside>
 </div>
