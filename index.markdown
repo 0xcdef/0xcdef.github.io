@@ -53,6 +53,16 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
 
   <div class="post-item">
     <div class="post-item-meta">
+      <span class="post-item-tag">Methodology</span>
+      <span class="post-date">Mar 24, 2026</span>
+    </div>
+    <a class="post-item-title" href="/blog/prompt-auditor.html">Your Claude setup is working against&nbsp;you.</a>
+    <p class="post-item-desc">More rules don't mean better outputs. How to audit your entire Claude configuration in one message, cut the dead weight, and get a setup that actually improves over time &mdash; plus a downloadable skill to automate it.</p>
+    <a class="post-item-link" href="/blog/prompt-auditor.html">Read the post &rarr;</a>
+  </div>
+
+  <div class="post-item">
+    <div class="post-item-meta">
       <span class="post-item-tag">Tutorial</span>
       <span class="post-date">Mar 22, 2026</span>
     </div>

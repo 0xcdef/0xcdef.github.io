@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Claude Setup Is Working Against You — 0xcdef</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap');
+
+  :root {
+    --bg:          #F7F5F0;
+    --bg2:         #EDEAE2;
+    --ink:         #1A1916;
+    --ink2:        #5A5850;
+    --ink3:        #8A8880;
+    --accent:      #C4572A;
+    --accent2:     #E8A060;
+    --teal:        #1D7A6A;
+    --teal-light:  #E2F3EF;
+    --border:      #D8D4CA;
+    --card:        #FFFFFF;
+    --serif:       'DM Serif Display', Georgia, serif;
+    --sans:        'DM Sans', system-ui, sans-serif;
+    --mono:        'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink2);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .masthead {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .masthead .logo { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; opacity: .7; }
+  .masthead .sep  { opacity: .25; margin: 0 4px; }
+  .masthead .badge {
+    font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 20px;
+  }
+  .masthead a.home-link {
+    font-family: var(--mono); font-size: 11px; color: rgba(247,245,240,.5);
+    text-decoration: none; margin-left: auto;
+  }
+  .masthead a.home-link:hover { color: rgba(247,245,240,.85); }
+
+  .hero {
+    background: var(--ink);
+    padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px) clamp(36px, 7vw, 70px);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -120px; right: -120px;
+    width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,87,42,.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: ''; position: absolute; bottom: -80px; left: 60px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,122,106,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 760px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent2); margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: var(--serif); font-size: clamp(28px, 6vw, 58px); line-height: 1.08;
+    color: #F7F5F0; margin-bottom: 20px; max-width: 640px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent2); }
+  .hero-sub {
+    font-size: clamp(15px, 2.5vw, 18px); color: rgba(247,245,240,.6);
+    line-height: 1.6; max-width: 560px; margin-bottom: 28px;
+  }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 12px; font-size: 12px; color: rgba(247,245,240,.45);
+  }
+
+  .body-wrap {
+    max-width: 1080px; margin: 0 auto;
+    padding: clamp(32px, 5vw, 60px) clamp(16px, 4vw, 40px);
+    display: grid; grid-template-columns: 1fr 280px;
+    gap: clamp(24px, 4vw, 60px); align-items: start;
+  }
+  @media (max-width: 780px) {
+    .body-wrap { grid-template-columns: 1fr; gap: 0; }
+    .sidebar   { display: none; }
+  }
+
+  article { min-width: 0; }
+  article h2 {
+    font-family: var(--serif); font-size: clamp(22px, 4vw, 30px); line-height: 1.15;
+    color: var(--ink); margin: 48px 0 14px;
+  }
+  article h2:first-child { margin-top: 0; }
+  article h3 {
+    font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--accent); margin: 32px 0 10px;
+  }
+  article p     { margin-bottom: 18px; color: var(--ink2); }
+  article strong{ font-weight: 600; }
+  article em    { font-style: italic; }
+  article a { color: var(--teal); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+
+  .divider { height: 1px; background: var(--border); margin: 36px 0; }
+
+  .pull {
+    border-left: 3px solid var(--accent); padding: 14px 20px; margin: 28px 0;
+    background: var(--card); border-radius: 0 8px 8px 0;
+  }
+  .pull p {
+    font-family: var(--serif); font-size: clamp(17px, 3vw, 22px);
+    line-height: 1.35; color: var(--ink); margin: 0; font-style: italic;
+  }
+
+  code { font-family: var(--mono); font-size: 13px; background: var(--bg2); color: var(--accent); padding: 2px 6px; border-radius: 4px; }
+
+  .cmd {
+    background: var(--ink); color: #A8E6CF; font-family: var(--mono); font-size: 13px;
+    padding: 14px 18px; border-radius: 8px; margin: 16px 0; line-height: 1.7;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .cmd .comment { color: rgba(168,230,207,.35); }
+
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  @media (max-width: 480px) { .card-grid { grid-template-columns: 1fr; } }
+
+  .card { border: 1px solid var(--border); border-radius: 10px; padding: 18px; background: var(--card); }
+  .card .badge {
+    font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 8px;
+  }
+  .badge-accent { background: #FEF3EC; color: var(--accent); }
+  .badge-teal   { background: var(--teal-light); color: var(--teal); }
+  .card h4 { font-family: var(--serif); font-size: clamp(15px, 2.5vw, 18px); color: var(--ink); margin-bottom: 7px; }
+  .card p   { font-size: 13px; color: var(--ink2); margin: 0; }
+  .card .note { margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--ink3); }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 20px 0; }
+  .data-table { width: 100%; min-width: 320px; border-collapse: collapse; font-size: 14px; }
+  .data-table th {
+    background: var(--ink); color: var(--bg); padding: 9px 14px; text-align: left;
+    font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  }
+  .data-table th:first-child { border-radius: 8px 0 0 0; }
+  .data-table th:last-child  { border-radius: 0 8px 0 0; }
+  .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--ink2); vertical-align: top; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--card); }
+  .text-good { color: var(--teal); font-weight: 600; }
+  .text-warn { color: #A06010; font-weight: 600; }
+  .text-bad  { color: #C04040; font-weight: 600; }
+
+  .bar-wrap { margin: 10px 0; }
+  .bar-label { font-size: 11px; font-weight: 600; color: var(--ink3); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+  .bar { background: var(--bg2); border-radius: 8px; overflow: hidden; height: 26px; display: flex; }
+  .bar-fill  { background: var(--teal); height: 100%; display: flex; align-items: center; padding: 0 8px; }
+  .bar-rest  { background: var(--border); height: 100%; display: flex; align-items: center; padding: 0 8px; }
+  .bar span  { font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; }
+  .bar-rest span { color: var(--ink2); }
+
+  .sidebar { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 16px; }
+  .sidebar-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .sidebar-card h4 { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); margin-bottom: 14px; }
+  .sidebar-card.dark { background: var(--ink); border-color: var(--ink); }
+  .sidebar-card.dark h4 { color: rgba(247,245,240,.4); }
+  .sidebar-card.dark p  { font-size: 13px; color: rgba(247,245,240,.7); line-height: 1.6; margin: 0; }
+
+  .step-row { display: flex; gap: 9px; margin-bottom: 12px; font-size: 13px; align-items: flex-start; }
+  .step-num {
+    width: 20px; height: 20px; background: var(--ink); color: var(--bg); border-radius: 50%;
+    font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .step-text         { color: var(--ink2); line-height: 1.4; }
+  .step-text strong  { color: var(--ink); display: block; margin-bottom: 2px; }
+
+  footer {
+    background: var(--ink); color: rgba(247,245,240,.4);
+    padding: clamp(24px, 4vw, 40px); text-align: center; font-size: 12px;
+  }
+  footer strong { color: rgba(247,245,240,.7); }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <span class="logo">0xcdef</span>
+  <span class="sep">·</span>
+  <span class="logo">AI &amp; Agents</span>
+  <a class="home-link" href="/">← Home</a>
+  <span class="badge">Methodology</span>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Claude Setup · Prompt Engineering</div>
+    <h1>Your Claude setup is working <em>against&nbsp;you.</em></h1>
+    <p class="hero-sub">
+      More rules don't mean better outputs. Here's how to audit your entire Claude configuration in one message — and cut it down to what actually works.
+    </p>
+    <div class="hero-meta">
+      <span>AI AGENTS · MAR 24, 2026</span>
+      <span>·</span>
+      <span>5 min read</span>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+  <article>
+
+    <h2>The rule-stacking trap</h2>
+
+    <p>It starts innocently. You get a bad output, so you add a rule: <em>"be more concise."</em> Next week, another bad output, another rule: <em>"use a casual tone."</em> A month later: <em>"always explain technical terms."</em></p>
+
+    <p>Each addition feels productive — you're fixing real problems as they come up. But three months in, you've got 30 rules piled on top of each other, and the model is trying to follow all of them at once, which means it's doing none of them well.</p>
+
+    <div class="pull">
+      <p>"It's like handing a chef a 47-step recipe when they only need 12. The extra 35 steps slow them down, make them second-guess the parts they already know, and the dish comes out worse."</p>
+    </div>
+
+    <p>That's what over-prompting does. Anthropic's own engineering team discovered this while building Claude Code — their scaffolding was making the AI <em>worse</em>. If it happens at Anthropic, it's almost certainly happening in your custom setup too.</p>
+
+    <div class="divider"></div>
+
+    <h2>Why rules go stale</h2>
+
+    <p>Not all bad rules are obviously bad. They fall into predictable categories that accumulate silently over time.</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="badge badge-accent">Silent Waste</span>
+        <h4>Default behavior</h4>
+        <p>Rules that tell Claude to do things it already does. "Be professional," "don't make things up," "use proper grammar." These add noise without adding signal.</p>
+        <div class="note">⚠ Most common type — easy to miss</div>
+      </div>
+      <div class="card">
+        <span class="badge badge-accent">Active Harm</span>
+        <h4>Conflicting rules</h4>
+        <p>"Be concise" fighting "always explain your reasoning." "Use a casual tone" colliding with "maintain professional language." These force the model to guess which rule wins.</p>
+        <div class="note">⚠ Degrades output unpredictably</div>
+      </div>
+      <div class="card">
+        <span class="badge badge-teal">Clutter</span>
+        <h4>Redundant rules</h4>
+        <p>The same instruction written three different ways across three different files. Each copy dilutes the others and makes the whole setup harder to reason about.</p>
+        <div class="note">✓ Easy to remove once spotted</div>
+      </div>
+      <div class="card">
+        <span class="badge badge-teal">Reactive Fixes</span>
+        <h4>One-off patches</h4>
+        <p>Rules added to fix a single bad output that never recurred. "Don't use the word 'delve'." These address symptoms, not patterns, and rarely generalize.</p>
+        <div class="note">✓ Usually safe to delete</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>The one-message audit</h2>
+
+    <p>Instead of manually reading through your setup line by line, tell Claude to audit itself. In Claude Code or Cowork, Claude has direct access to your <code>claude.md</code>, skills folder, context files — everything. Use this prompt:</p>
+
+    <div class="cmd">
+<span class="comment"># Paste this into Claude Code or Cowork</span>
+
+Read my entire setup before responding. Check my claude.md,
+every skill in my skills folder, every file in my context
+folder, and any other instruction files you can find.
+
+Then go through every rule, instruction, and preference you
+found. For each one, tell me:
+
+1. Is this something you already do by default?
+2. Does this contradict another rule elsewhere in my setup?
+3. Does this repeat something already covered elsewhere?
+4. Does this look like it was added to fix one specific bad output?
+5. Is this so vague you'd interpret it differently every time?
+
+Then give me:
+- A list of everything you'd cut, with a one-line reason each
+- A list of any conflicts found between files
+- A cleaned-up version of my claude.md with dead weight removed
+    </div>
+
+    <p>One message. Claude reads your entire setup, audits it, and returns exactly what to cut and why — no manual file digging required.</p>
+
+    <div class="divider"></div>
+
+    <h2>Five questions for every rule</h2>
+
+    <p>Whether you run the audit prompt or review manually, apply the same five questions to every instruction you find.</p>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Question</th><th>Flag if...</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Does Claude already do this by default?</td>
+            <td class="text-bad">Yes</td>
+            <td>Cut it</td>
+          </tr>
+          <tr>
+            <td>Does this conflict with another rule?</td>
+            <td class="text-bad">Yes</td>
+            <td>Resolve or cut one</td>
+          </tr>
+          <tr>
+            <td>Is this covered somewhere else?</td>
+            <td class="text-warn">Yes</td>
+            <td>Keep the clearest copy</td>
+          </tr>
+          <tr>
+            <td>Was this added to fix a single bad output?</td>
+            <td class="text-warn">Likely</td>
+            <td>Validate then cut</td>
+          </tr>
+          <tr>
+            <td>Is this too vague to be consistent?</td>
+            <td class="text-warn">Yes</td>
+            <td>Sharpen or cut</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Validate before you delete</h2>
+
+    <p>Don't blindly delete everything the audit flags. Run a quick validation loop first — it takes five minutes and prevents regressions.</p>
+
+    <h3>The validation process</h3>
+    <p>After getting the audit results, delete the flagged rules. Then run your three most common tasks with the trimmed setup. If the output is the same or better, the deleted rules were dead weight. If something specific breaks, add back <em>just that one rule</em> — not the whole batch.</p>
+
+    <h3>What good looks like</h3>
+    <p>A healthy setup has rules that are global (not reactive), specific (not vague), and non-contradictory. Each rule should improve <em>every</em> output, not just defend against one past failure.</p>
+
+    <div class="divider"></div>
+
+    <h2>Addition by subtraction</h2>
+
+    <p>The goal is the minimum viable setup — the simplest configuration that produces the outputs you want. Not the most comprehensive one. Not the most defensively complete one.</p>
+
+    <p>A good Claude setup gets <strong>simpler over time</strong>, not longer. Every time you add a rule, ask whether you're improving the system or just patching a symptom. The ones that survive that question are the ones worth keeping.</p>
+
+    <div class="divider"></div>
+
+    <h2>Get the skill</h2>
+
+    <p>The Prompt Auditor is packaged as a ready-to-install Claude skill. Drop it into your skills folder and Claude will automatically audit setups whenever you ask — no manual prompting required.</p>
+
+    <a href="/assets/skills/prompt-auditor.skill" download style="
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--ink); color: #F7F5F0; text-decoration: none;
+      padding: 12px 22px; border-radius: 8px; font-family: var(--mono);
+      font-size: 13px; font-weight: 600; letter-spacing: .04em;
+      transition: opacity .15s;
+    " onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+      &#x2193; &nbsp;Download prompt-auditor.skill
+    </a>
+
+    <div class="divider"></div>
+
+    <h2>Source</h2>
+
+    <p>The insight behind this post — and the audit prompt itself — comes from <a href="https://x.com/itsolelehmann" target="_blank">@itsolelehmann</a> on X. The original thread laid out the rule-stacking trap, the chef analogy, and the one-message audit technique. This post expands on that framework and packages it as an installable skill.</p>
+
+  </article>
+
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h4>Audit checklist</h4>
+      <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Run the audit prompt</strong>Let Claude read and flag its own setup</div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Review the cut list</strong>Read each reason — do they make sense?</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Delete flagged rules</strong>Apply the cleaned claude.md</div></div>
+      <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Run your top 3 tasks</strong>Test with the trimmed setup</div></div>
+      <div class="step-row"><div class="step-num">5</div><div class="step-text"><strong>Add back only what broke</strong>One rule at a time, not in batches</div></div>
+    </div>
+
+    <div class="sidebar-card dark">
+      <h4>Rule of thumb</h4>
+      <p>If a rule only fixed one bad output and that output hasn't recurred, the rule doesn't belong in a permanent setup. Rules should improve every output, not patch one failure.</p>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <strong>0xcdef</strong> · AI &amp; Agents for ASIC/SoC Design
+</footer>
+
+</body>
+</html>
