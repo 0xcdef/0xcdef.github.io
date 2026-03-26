@@ -77,6 +77,20 @@
   .hero-sub { font-size: clamp(15px, 2.5vw, 18px); color: rgba(247,245,240,.6); line-height: 1.6; max-width: 560px; margin-bottom: 28px; }
   .hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 12px; color: rgba(247,245,240,.45); }
 
+  /* changelog badge */
+  .hero-updated {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: rgba(29,122,106,.35);
+    color: #A8E6CF;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
   .body-wrap {
     max-width: 1080px;
     margin: 0 auto;
@@ -92,6 +106,7 @@
   }
   @media (max-width: 480px) {
     .card-grid { grid-template-columns: 1fr; }
+    .dl-grid   { grid-template-columns: 1fr; }
   }
 
   article { min-width: 0; }
@@ -136,9 +151,30 @@
   .text-warn { color: #A06010; font-weight: 600; }
   .text-bad  { color: #C04040; font-weight: 600; }
 
+  /* layer diagram */
+  .layer-stack { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+  .layer-row { display: grid; grid-template-columns: 110px 1fr 120px 140px; gap: 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .layer-row:last-child { border-bottom: none; }
+  .layer-row.header { background: var(--ink); color: rgba(247,245,240,.6); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .layer-cell { padding: 11px 14px; border-right: 1px solid var(--border); }
+  .layer-cell:last-child { border-right: none; }
+  .layer-row.l1 { background: #F0FAF7; }
+  .layer-row.l2 { background: #FDFAF5; }
+  .layer-row.l3 { background: #FFF5EF; }
+  .layer-row.l4 { background: #FEF0EF; }
+  .layer-label { font-weight: 700; font-size: 12px; }
+  .tag-ok   { display:inline-block; background: var(--teal-light); color: var(--teal); font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px; }
+  .tag-warn { display:inline-block; background: #FEF3EC; color: var(--accent); font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px; }
+  .tag-req  { display:inline-block; background: #FDECEA; color: #C04040; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 20px; }
+  @media (max-width: 600px) {
+    .layer-row { grid-template-columns: 1fr 1fr; }
+    .layer-cell:nth-child(3), .layer-cell:nth-child(4) { border-top: 1px solid var(--border); }
+    .layer-row.header .layer-cell:nth-child(3),
+    .layer-row.header .layer-cell:nth-child(4) { display: none; }
+  }
+
   /* Download cards */
   .dl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
-  @media (max-width: 480px) { .dl-grid { grid-template-columns: 1fr; } }
   .dl-card {
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -151,10 +187,12 @@
     transition: border-color .15s, box-shadow .15s;
   }
   .dl-card:hover { border-color: var(--teal); box-shadow: 0 2px 10px rgba(29,122,106,.1); }
+  .dl-card.new { border-color: var(--teal); background: var(--teal-light); }
   .dl-icon { font-size: 22px; flex-shrink: 0; }
   .dl-info { min-width: 0; }
   .dl-name { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--ink); display: block; }
   .dl-desc { font-size: 11px; color: var(--ink3); display: block; margin-top: 2px; }
+  .dl-new  { font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); display: block; margin-top: 4px; }
 
   .sidebar { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 16px; }
   .sidebar-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
@@ -186,13 +224,14 @@
     <div class="hero-eyebrow">OpenClaw · Configuration</div>
     <h1>Teaching an OpenClaw agent to think like <em>Claude.</em></h1>
     <p class="hero-sub">
-      Four config files that transplant Claude's internal reasoning loop — search routing, synthesis rules, injection defence, and wellbeing awareness — directly into your OpenClaw workspace.
+      Five config files that transplant Claude's internal reasoning loop into your OpenClaw workspace — including a universal knowledge-layer framework that stops your agent from confidently answering business questions with years-old data.
     </p>
     <div class="hero-meta">
       <span>AI & Agents · Mar 26, 2026</span>
       <span>·</span>
-      <span>8 min read</span>
+      <span>10 min read</span>
     </div>
+    <span class="hero-updated">Updated — knowledge-layer framework + MARKET-ANALYSIS.md added</span>
   </div>
 </div>
 
@@ -201,108 +240,165 @@
 
     <h2>Why default config leaves performance on the table</h2>
 
-    <p>Out of the box, an OpenClaw agent is blank. It answers questions. It uses tools if you've enabled them. But it makes no promises about <em>when</em> to search, <em>how</em> to synthesize what it finds, whether to confirm before acting, or what to do when a message carries an emotional undercurrent.</p>
+    <p>Out of the box, an OpenClaw agent is blank. It answers questions, uses tools if you've enabled them, but makes no promises about <em>when</em> to search, <em>how</em> to synthesize what it finds, or how to tell the difference between knowledge it can trust and facts it needs to verify.</p>
 
-    <p>That gap is where most of an agent's performance lives. A raw LLM instructed only to "be helpful" will search when it shouldn't, skip searching when it should, paste snippets instead of reasoning over them, and execute actions without a second thought.</p>
+    <p>That last gap is the most damaging one in practice. Ask your agent for a gold price outlook, a competitor analysis, or which regulation applies to your product — and it will answer with confidence, fluency, and data that may be two or three years out of date. Not because it's broken. Because nobody told it that business runs on current reality, not training memory.</p>
 
     <div class="pull">
-      <p>"The goal is not to respond. The goal is to be useful. Those are different things."</p>
+      <p>"Training knowledge is experience. Live search is reality. Business runs on reality."</p>
     </div>
 
-    <p>This post documents a complete configuration set — four files — built by reverse-engineering Claude's actual internal logic and encoding it as OpenClaw workspace files. The result is an agent that routes tool calls with intention, synthesizes rather than regurgitates, confirms before acting, and notices when you need more than an answer.</p>
+    <p>This post documents a complete configuration set — five files — built by encoding Claude's actual internal logic as OpenClaw workspace files. The centrepiece is a universal knowledge-layer framework that applies to every domain: markets, technology, legal, vendors, competitors, personnel. The agent learns to know what it knows, and know what it needs to look up.</p>
 
     <div class="divider"></div>
 
-    <h2>The architecture: four files, one coherent agent</h2>
+    <h2>The architecture: five files, one coherent agent</h2>
 
-    <p>OpenClaw's identity system is file-based. Every session, the agent reads its workspace files and assembles itself from them. The files <em>are</em> the agent. This means getting the files right is the entire job.</p>
+    <p>OpenClaw's identity system is file-based. Every session, the agent reads its workspace and assembles itself from those files. Getting them right is the entire job.</p>
 
     <div class="card-grid">
       <div class="card">
         <span class="badge badge-accent">Identity</span>
         <h4>SOUL.md</h4>
-        <p>Who the agent is. Character, values, tone, curiosity, pushback style, and wellbeing awareness. Injected first, shapes everything else.</p>
+        <p>Who the agent is. Character, curiosity, constructive pushback, wellbeing awareness. Injected first — shapes everything else.</p>
       </div>
       <div class="card">
         <span class="badge badge-teal">Procedure</span>
         <h4>AGENTS.md</h4>
-        <p>How the agent operates. Session start sequence, tool routing logic, action confirmation pattern, memory system, group chat rules.</p>
+        <p>How the agent operates. Session boot sequence, layer-aware tool routing, action confirmation, memory system, group chat rules.</p>
       </div>
       <div class="card">
         <span class="badge badge-accent">Cognition</span>
         <h4>REASONING.md</h4>
-        <p>How the agent thinks, turn by turn. The five-step loop: Classify → Route → Gather → Synthesize → Respond. The file that most agents are missing entirely.</p>
+        <p>How the agent thinks, turn by turn. The 6-step loop — including the new LAYER step that prevents stale-data failures across all domains.</p>
       </div>
       <div class="card">
         <span class="badge badge-teal">Memory</span>
         <h4>MEMORY.md</h4>
-        <p>Structured long-term memory template. Preferences, constraints, projects, people, open loops, corrections — everything that makes sessions compound over time.</p>
+        <p>Structured long-term memory template. Preferences, constraints, projects, people, open loops — everything that makes sessions compound.</p>
+      </div>
+      <div class="card" style="grid-column: span 2;">
+        <span class="badge badge-teal">Domain Skill</span>
+        <h4>MARKET-ANALYSIS.md</h4>
+        <p>The first domain skill. Applies the Layer 3/4 data protocol specifically to financial and market analysis tasks: 6-phase live-data workflow, mandatory report header, prohibited patterns, confidence statement. The template for future domain skills.</p>
+        <div class="note">✦ New file — not present in the original release</div>
       </div>
     </div>
 
     <div class="divider"></div>
 
-    <h2>The reasoning loop in detail</h2>
+    <h2>The core fix: a knowledge-layer framework</h2>
 
-    <p>The centrepiece is <code>REASONING.md</code> — a file that doesn't ship with OpenClaw by default, but produces the biggest performance gain. It encodes a five-step decision loop the agent runs mentally before every response.</p>
+    <p>The original config had a simple search decision: "does this question touch current state?" That's necessary but not sufficient. The deeper problem is that an LLM cannot always tell the difference between a principle that is stable forever and a fact that changed last month — and without explicit instruction, it treats them the same way.</p>
 
-    <h3>Step 1 — Classify</h3>
-    <p>Before touching a tool, the agent identifies what kind of request it's looking at. Timeless knowledge (how TCP/IP works) never needs a search. Current state (who is the CEO of X, is this product still supported) always does. Actions (send, schedule, delete) require confirmation. Ambiguous requests get one clarifying question — not three.</p>
+    <p>The new <strong>LAYER step</strong> — Step 2 in the updated 6-step reasoning loop — forces the agent to classify every piece of information it needs before deciding how to get it.</p>
 
-    <h3>Step 2 — Route</h3>
-    <p>Tool selection follows a strict priority: internal tools first for personal data, web search for external information, web fetch when snippets aren't enough. The key discipline is search scaling — one tool call for a single fact, three to ten for research, never more than needed.</p>
+    <div class="layer-stack">
+      <div class="layer-row header">
+        <div class="layer-cell">Layer</div>
+        <div class="layer-cell">Examples</div>
+        <div class="layer-cell">Changes</div>
+        <div class="layer-cell">Source</div>
+      </div>
+      <div class="layer-row l1">
+        <div class="layer-cell"><span class="layer-label">1 — Principles</span></div>
+        <div class="layer-cell">Supply &amp; demand logic, contract law theory, negotiation frameworks, TCP/IP, why diversification works</div>
+        <div class="layer-cell">Never / decades</div>
+        <div class="layer-cell"><span class="tag-ok">Training ✓</span></div>
+      </div>
+      <div class="layer-row l2">
+        <div class="layer-cell"><span class="layer-label">2 — Context</span></div>
+        <div class="layer-cell">Industry norms, popular frameworks, major established players, standard certifications, regulatory patterns</div>
+        <div class="layer-cell">Months–years</div>
+        <div class="layer-cell"><span class="tag-warn">Verify if old</span></div>
+      </div>
+      <div class="layer-row l3">
+        <div class="layer-cell"><span class="layer-label">3 — Current facts</span></div>
+        <div class="layer-cell">Prices, rates, laws in effect, product versions, who holds a role, company status, active regulations</div>
+        <div class="layer-cell">Days–months</div>
+        <div class="layer-cell"><span class="tag-req">Search required</span></div>
+      </div>
+      <div class="layer-row l4">
+        <div class="layer-cell"><span class="layer-label">4 — Recent events</span></div>
+        <div class="layer-cell">Earnings, policy decisions, product launches, mergers, geopolitical shifts, market moves</div>
+        <div class="layer-cell">Continuously</div>
+        <div class="layer-cell"><span class="tag-req">Search required</span></div>
+      </div>
+    </div>
+
+    <p>The rule is domain-agnostic. It applies equally to a gold price report, a vendor evaluation, a regulatory compliance check, or a technology selection. Any specific number, name, version, status, or price is Layer 3. Anything that happened, was decided, or was announced is Layer 4. Both require live search before the agent uses them.</p>
+
+    <h3>The failure pattern it prevents</h3>
+
+    <p>The most common and dangerous mistake is presenting Layer 2 knowledge as if it were a Layer 3 fact — with confidence, no date, and no search. Examples the agent now knows to avoid:</p>
+
+    <ul>
+      <li>"Gold is trading around $1,800" — a price from training memory, no date disclosed</li>
+      <li>"The best framework for this is X" — correct when trained, possibly superseded now</li>
+      <li>"Company Y is the market leader" — asserted from training, no recent news checked</li>
+      <li>"The regulation requires Z" — rule from training, no check if it's been amended</li>
+      <li>"Interest rates are at X%" — rate from training, stated as current fact</li>
+    </ul>
+
+    <p>In every case the failure is the same: the agent spoke with confidence about a fact it cannot actually know. The layer framework names this pattern explicitly so the agent recognises it before it happens.</p>
+
+    <div class="divider"></div>
+
+    <h2>The updated reasoning loop: six steps</h2>
+
+    <p>The original REASONING.md had five steps. It now has six. The new Step 2 — LAYER — sits between Classify and Route and is the most important addition.</p>
 
     <div class="table-wrap">
       <table class="data-table">
         <thead>
-          <tr><th>Query type</th><th>Tool calls</th><th>Pattern</th></tr>
+          <tr><th>Step</th><th>Question</th><th>Output</th></tr>
         </thead>
         <tbody>
-          <tr><td>Single fact</td><td class="text-good">1</td><td>Search → answer</td></tr>
-          <tr><td>Comparison / summary</td><td class="text-warn">3–5</td><td>Search → fetch → synthesize</td></tr>
-          <tr><td>Deep research</td><td class="text-warn">5–10</td><td>Multi-source, converge</td></tr>
-          <tr><td>Needs 20+ calls</td><td class="text-bad">Escalate</td><td>Flag to user, suggest Research mode</td></tr>
+          <tr><td><strong>1. Classify</strong></td><td>What kind of request is this?</td><td>Knowledge / personal / action / ambiguous</td></tr>
+          <tr><td><strong>2. Layer</strong> <span class="tag-req" style="vertical-align:middle">New</span></td><td>What kind of knowledge does this require?</td><td>L1–L4 assignment per data point</td></tr>
+          <tr><td><strong>3. Route</strong></td><td>Which tools do I need?</td><td>Internal / web search / web fetch / none</td></tr>
+          <tr><td><strong>4. Gather</strong></td><td>Execute. Get data.</td><td>Sourced, dated data points</td></tr>
+          <tr><td><strong>5. Synthesize</strong></td><td>Combine layers correctly.</td><td>L3/L4 facts + L1/L2 reasoning → insight</td></tr>
+          <tr><td><strong>6. Respond</strong></td><td>Deliver it well.</td><td>Formatted output with data header + confidence</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>Step 3 — Gather</h3>
-    <p>Each query must be meaningfully distinct from the last — repeating the same phrasing returns the same results. The agent stops gathering when it has enough to answer confidently. Over-searching is as much a failure mode as under-searching.</p>
+    <p>The synthesis step now has an explicit correct pattern: live fact (Layer 3/4) anchors the analysis, principle or framework (Layer 1/2) interprets it. Neither alone is useful. Reasoning from principles without current facts produces elegant but wrong conclusions. Current facts without interpretive framework produces a data dump with no insight.</p>
 
-    <h3>Step 4 — Synthesize</h3>
-    <p>This is the step most agents skip. Raw tool output is not an answer. The agent paraphrases, leads with the most relevant information, flags conflicts between sources, and attributes claims. A hard quoting limit applies: under 15 words per direct quote, one quote per source maximum, default to paraphrasing.</p>
+    <h3>Data header and confidence statement</h3>
+    <p>Any analytical report involving Layer 3 or 4 data now requires two structural elements the original config lacked. First, a data header at the top of the report declaring the freshness and source of every key figure. Second, a confidence statement at the end — not a disclaimer, but a professional signal: "High — full live data coverage" or "Medium — competitor pricing unconfirmed." This is how a professional analyst communicates. It is also now how the agent communicates.</p>
 
-    <h3>Step 5 — Respond</h3>
-    <p>Format matches content: short factual questions get sentences, not lists. Research gets prose with attribution. Instructions get numbered steps. The agent never opens with "Great question!" and never closes with an offer to keep chatting. It delivers the answer and stops.</p>
+    <div class="divider"></div>
+
+    <h2>MARKET-ANALYSIS.md: the first domain skill</h2>
+
+    <p>Financial and market analysis is the clearest example of Layer 3 data: specific, numerical, and changing continuously. The new <code>MARKET-ANALYSIS.md</code> skill applies the universal layer framework to this domain with a structured 6-phase workflow.</p>
+
+    <p>Phase 1 announces intent before searching — so the user sees the agent working, not hallucinating from memory. Phase 2 runs a live data sweep across six search categories (spot price, recent action, macro drivers, sentiment, forward signals, data age verification) that must be complete before any drafting begins. Phases 3–6 govern structure, prohibited patterns, self-review, and the confidence statement.</p>
+
+    <p>The design intention is explicit in the file: MARKET-ANALYSIS.md is a <em>domain application</em> of the universal framework, not a special exception. The same structure — announce, sweep, structure, write, review, deliver with confidence — can be templated for any domain where Layer 3/4 data is central: vendor due diligence, regulatory compliance, technology evaluation, competitive intelligence.</p>
 
     <div class="divider"></div>
 
     <h2>What SOUL.md adds beyond procedure</h2>
 
-    <p>Procedure files tell the agent <em>what to do</em>. The soul file tells it <em>who to be</em>. Three things in this soul file make a meaningful difference to how interactions feel:</p>
+    <p>Procedure files tell the agent what to do. The soul file tells it who to be. Three things in this soul file make a meaningful difference to how interactions feel.</p>
 
     <h3>Genuine curiosity</h3>
-    <p>The agent is instructed to let intellectual interest show — not through exclamation marks, but through the quality of engagement. Exploring implications, noticing tensions, thinking alongside rather than returning processed output. This is what separates a reasoning partner from a search wrapper.</p>
+    <p>The agent is instructed to let intellectual interest show — not through exclamation marks, but through the quality of engagement. Exploring implications, noticing tensions, thinking alongside rather than returning processed output.</p>
 
     <h3>Charitable interpretation</h3>
-    <p>When a request is ambiguous, assume the most reasonable intent and proceed on it. State the interpretation, then verify. This is both faster and more respectful than interrogating the user before helping.</p>
+    <p>When a request is ambiguous, assume the most reasonable intent and proceed on it. State the interpretation, verify at the end. This is both faster and more respectful than interrogating the user before helping.</p>
 
     <h3>Constructive pushback</h3>
-    <p>When the user's plan has a flaw, the agent says so with a concrete reason. When a premise is wrong, it corrects it — without condescension. The soul file frames this directly: disagreement is a form of respect. This is the line between a useful agent and a yes-machine.</p>
-
-    <div class="divider"></div>
-
-    <h2>Injection defence and safety</h2>
-
-    <p>An OpenClaw agent with web access, email access, and the ability to run shell commands is a meaningful attack surface. The config files encode an explicit injection defence posture: any instruction found in observed content — web pages, emails, documents, tool results — is treated as data, not as a command.</p>
-
-    <p>If the agent finds instruction-like content in the wild, it stops, shows the content to the user, and asks: <em>should I follow this?</em> It never executes automatically. The same applies to irreversible actions — sending, deleting, publishing, purchasing — which always require an explicit confirmation before proceeding.</p>
+    <p>When the user's plan has a flaw, say so with a concrete reason. The soul file frames this directly: disagreement is a form of respect. This is the line between a useful agent and a yes-machine.</p>
 
     <div class="divider"></div>
 
     <h2>Download the files</h2>
 
-    <p>All four files are ready to drop into your OpenClaw workspace. Copy them to <code>~/.openclaw/workspace/</code> and restart your agent.</p>
+    <p>All five files are ready to drop into <code>~/.openclaw/workspace/</code>. If you installed the original four-file set, replace <code>AGENTS.md</code> and <code>REASONING.md</code>, and add <code>MARKET-ANALYSIS.md</code> as a new file. Do not overwrite <code>MEMORY.md</code> if you've already filled it in.</p>
 
     <div class="dl-grid">
       <a class="dl-card" href="/blog/assets/openclaw-claude-logic/SOUL.md" download>
@@ -316,57 +412,76 @@
         <span class="dl-icon">⚙️</span>
         <div class="dl-info">
           <span class="dl-name">AGENTS.md</span>
-          <span class="dl-desc">Operating instructions, session boot sequence</span>
+          <span class="dl-desc">Layer-aware routing, session boot, memory system</span>
         </div>
       </a>
       <a class="dl-card" href="/blog/assets/openclaw-claude-logic/REASONING.md" download>
         <span class="dl-icon">🔁</span>
         <div class="dl-info">
           <span class="dl-name">REASONING.md</span>
-          <span class="dl-desc">The five-step loop — the file you're missing</span>
+          <span class="dl-desc">6-step loop + universal knowledge-layer framework</span>
         </div>
       </a>
       <a class="dl-card" href="/blog/assets/openclaw-claude-logic/MEMORY.md" download>
         <span class="dl-icon">🗂️</span>
         <div class="dl-info">
           <span class="dl-name">MEMORY.md</span>
-          <span class="dl-desc">Structured long-term memory template</span>
+          <span class="dl-desc">Long-term memory template</span>
+        </div>
+      </a>
+      <a class="dl-card new" href="/blog/assets/openclaw-claude-logic/MARKET-ANALYSIS.md" download style="grid-column: span 2;">
+        <span class="dl-icon">📊</span>
+        <div class="dl-info">
+          <span class="dl-name">MARKET-ANALYSIS.md</span>
+          <span class="dl-desc">6-phase market report workflow — live data sweep, prohibited patterns, confidence statement</span>
+          <span class="dl-new">✦ New file</span>
         </div>
       </a>
     </div>
 
     <div class="cmd">
-      <span class="comment"># Install into your OpenClaw workspace</span><br>
+      <span class="comment"># Fresh install</span><br>
       mkdir -p ~/.openclaw/workspace<br>
-      cp SOUL.md AGENTS.md REASONING.md MEMORY.md ~/.openclaw/workspace/<br><br>
-      <span class="comment"># Then restart your agent session</span>
+      cp SOUL.md AGENTS.md REASONING.md MEMORY.md MARKET-ANALYSIS.md ~/.openclaw/workspace/<br><br>
+      <span class="comment"># Upgrading from the original 4-file set?</span><br>
+      <span class="comment"># Replace AGENTS.md and REASONING.md, add MARKET-ANALYSIS.md</span><br>
+      <span class="comment"># Don't overwrite MEMORY.md if you've already filled it in</span>
     </div>
 
     <div class="divider"></div>
 
     <h2>What to expect after installing</h2>
 
-    <p>The most immediate change is in search behaviour. The agent stops searching for things it already knows with confidence, and reliably searches for anything that touches current state. Responses become shorter for simple questions and more substantive for complex ones — length matches the task rather than defaulting to either extreme.</p>
+    <p>The most immediate change is in how the agent handles any question that involves a specific fact. Instead of answering from training memory with confidence, it pauses, runs the layer check, identifies the fact as Layer 3 or 4, and searches before stating anything. Responses to factual questions become slightly slower and substantially more reliable.</p>
 
-    <p>Over several sessions, the memory system compounds. The agent accumulates your preferences, constraints, and project context, and wakes up each session already knowing them. The open loops section is particularly useful — tasks that span sessions stay visible until explicitly resolved.</p>
+    <p>For analytical tasks — market reports, vendor assessments, competitive analysis — the change is structural. The agent announces it's gathering data, completes the sweep, then writes. The output carries a data header and a confidence statement. It reads like a professional brief, not a confident summary of whatever the model happened to know.</p>
 
-    <p>The wellbeing awareness in <code>SOUL.md</code> is subtle but meaningful. It won't turn your agent into a therapist. What it does is stop the agent from barrelling through a task when the message underneath it signals that something else is going on.</p>
+    <p>Over sessions, the memory system compounds. The layer framework also improves over time: as the agent learns your domain and what sources you trust, it gets faster and more targeted in the gather phase without sacrificing accuracy.</p>
 
   </article>
 
   <aside class="sidebar">
     <div class="sidebar-card">
       <h4>Install sequence</h4>
-      <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Download all four files</strong>Use the cards above or clone the assets folder</div></div>
+      <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Download all five files</strong>Use the cards above</div></div>
       <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Copy to workspace</strong><code>~/.openclaw/workspace/</code></div></div>
-      <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Fill in MEMORY.md</strong>Add your name, timezone, preferences</div></div>
-      <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Restart the agent</strong>Session boot will read all four files</div></div>
-      <div class="step-row"><div class="step-num">5</div><div class="step-text"><strong>Iterate over time</strong>Correct the agent; let MEMORY.md grow</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Fill in MEMORY.md</strong>Name, timezone, preferences</div></div>
+      <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Restart the agent</strong>Boot reads all files in sequence</div></div>
+      <div class="step-row"><div class="step-num">5</div><div class="step-text"><strong>Iterate over time</strong>Correct the agent; MEMORY.md grows</div></div>
     </div>
 
     <div class="sidebar-card dark">
-      <h4>The file you're missing</h4>
-      <p>REASONING.md doesn't ship with OpenClaw. It's the file that encodes the five-step decision loop — and it produces the biggest single performance gain of the four. Start there if you're only adding one.</p>
+      <h4>The key insight</h4>
+      <p>The loop now has six steps, not five. Step 2 — LAYER — is the new core. It's the step that stops your agent from building a confident, well-written, completely stale analysis. Every domain benefits from it. Markets are just the most obvious example.</p>
+    </div>
+
+    <div class="sidebar-card">
+      <h4>File changelog</h4>
+      <div class="step-row"><div class="step-num" style="background:var(--teal)">↑</div><div class="step-text"><strong>REASONING.md</strong>6-step loop, Layer framework, universal data rule</div></div>
+      <div class="step-row"><div class="step-num" style="background:var(--teal)">↑</div><div class="step-text"><strong>AGENTS.md</strong>Layer routing, domain skill registry</div></div>
+      <div class="step-row"><div class="step-num" style="background:var(--accent)">+</div><div class="step-text"><strong>MARKET-ANALYSIS.md</strong>New domain skill file</div></div>
+      <div class="step-row"><div class="step-num" style="opacity:.35">—</div><div class="step-text"><strong>SOUL.md</strong>No changes</div></div>
+      <div class="step-row"><div class="step-num" style="opacity:.35">—</div><div class="step-text"><strong>MEMORY.md</strong>No changes</div></div>
     </div>
   </aside>
 </div>
