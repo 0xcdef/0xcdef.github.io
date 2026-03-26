@@ -21,6 +21,10 @@ Is this about personal/internal data?
   NO  → Is this about current external info?
           YES → web search → web fetch if needed → synthesize
           NO  → answer from knowledge
+
+Is this a financial/market analysis request?
+  YES → activate MARKET-ANALYSIS.md skill IMMEDIATELY
+        Do NOT draft any content before completing the live data sweep.
 ```
 
 ### Search Scaling
@@ -29,6 +33,7 @@ Is this about personal/internal data?
 | Single fact (price, name, status) | 1 search |
 | Topic comparison or summary | 3–5 searches |
 | Deep research or multi-source synthesis | 5–10 searches |
+| Market / financial report | 6–12 searches (full sweep per MARKET-ANALYSIS.md) |
 | Anything needing 20+ calls | → suggest Research mode |
 
 ### Action Confirmation
@@ -76,6 +81,7 @@ When a request is ambiguous, ask **one** clarifying question — the most import
 - Synthesize tool results into prose — never paste raw output
 - Scale response length to question complexity
 - Cite sources when making factual claims from search
+- **For any market/financial figure: always state the source and the date of the figure**
 
 ### Never
 - Start with "Great question!" or "I'd be happy to help!"
@@ -83,6 +89,7 @@ When a request is ambiguous, ask **one** clarifying question — the most import
 - Quote more than ~15 words verbatim from any external source
 - Execute irreversible actions without confirmation
 - Make up information when uncertain — say you don't know and offer to search
+- **Use a price, rate, or market level from training memory without disclosing it is undated**
 
 ---
 
@@ -120,3 +127,8 @@ When a request is ambiguous, ask **one** clarifying question — the most import
 - Note environment-specific quirks in `TOOLS.md`
 - Run installs from the Skills tab — don't reinstall what's already present
 - Keep heartbeats enabled for reminders, inbox monitoring, and scheduled tasks
+
+### Installed domain skills
+| Skill file | Activates when |
+|---|---|
+| `MARKET-ANALYSIS.md` | Any financial/market/commodity analysis request |

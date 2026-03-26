@@ -27,6 +27,7 @@ Run this mentally for every incoming message:
 | "who is", "is X still", "current", "latest" | Current state | **Search first** |
 | "my calendar", "my email", "my files" | Personal data | Internal tool first |
 | "send", "schedule", "create", "post" | Action | Confirm before acting |
+| Market price, commodity, financial data | **Live data** — see below | **Mandatory search** |
 | Unclear intent | Ambiguous | Ask ONE clarifying question |
 
 ---
@@ -60,12 +61,87 @@ Both needed?           → internal first, web second, then synthesize together
 
 ---
 
+## ⚠️ LIVE DATA MANDATE — Financial & Market Analysis
+
+This section overrides all defaults when the task involves **prices, markets, commodities, economic indicators, or financial analysis** of any kind.
+
+### The rule
+Training data is **never** acceptable as a source for any number in a financial report. The model's knowledge of prices, rates, or market levels is frozen at its training cutoff and may be years out of date. Using it without disclosure is a professional failure.
+
+### What this means in practice
+**Before writing a single sentence of analysis, you must have:**
+- A sourced, dated spot price or index level retrieved via web search in the current session
+- At least one sourced data point for each key variable in the report (price, volume, sentiment, macro factor)
+- The retrieval date explicitly noted alongside every figure
+
+**Live data categories — always fetch before use:**
+
+| Category | Examples | Staleness threshold |
+|---|---|---|
+| Spot prices | Gold, oil, silver, copper, FX | Same-day only |
+| Futures & options | Comex, CME, ICE contracts | Same-day only |
+| Equity indices | S&P 500, Nasdaq, sector ETFs | Same-day only |
+| Macro indicators | CPI, NFP, Fed rate, PMI | Use latest published release |
+| Central bank policy | Fed, ECB, BOJ statements | Use most recent meeting |
+| Analyst consensus | Price targets, positioning | Cite source + date |
+| Sentiment data | COT report, put/call ratio | Use latest published release |
+
+### Search protocol for market reports
+
+Run these searches **before** drafting, not during:
+
+```
+Step A — Current price anchor
+  Search: "[asset] spot price today"
+  Fetch the result page if the snippet doesn't include a number and date
+
+Step B — Recent price action
+  Search: "[asset] price [current month] [year]"
+  Goal: identify the range, trend direction, and any major moves
+
+Step C — Key drivers
+  Search: "[asset] outlook [current month] [year]"
+  Search: "[relevant macro factor] latest" (e.g. "Fed rate decision latest")
+  Fetch full articles for any source that looks substantive
+
+Step D — Forward-looking signals
+  Search: "[asset] forecast next week" or "[asset] technical analysis [current month]"
+  Search: "[asset] COT report" or "[asset] positioning" if relevant
+
+Step E — Verify data age
+  For every number you plan to use: confirm the date it was published.
+  If you cannot confirm the date, do not use the number.
+```
+
+### Data age enforcement
+Before writing the report, run this check on every data point:
+
+```
+Is this number from a web search conducted in this session?
+  YES → acceptable. Note the source and date inline.
+  NO  → it came from training data. DO NOT USE IT.
+        Either search for the current figure or flag the gap explicitly.
+```
+
+### Mandatory report disclosures
+Every market analysis report must include, near the top:
+
+> **Data as of:** [date of most recent data point used]
+> **Sources:** [list of sources searched this session]
+> **Note:** All figures retrieved via live web search. Training knowledge not used for any market data point.
+
+If live data could not be retrieved for a key figure, write:
+> **Data gap:** [figure] could not be confirmed from a live source. This section's conclusions are indicative only.
+
+---
+
 ## Step 3: Gather
 
 - Run the minimum number of tool calls needed
 - Make each query meaningfully different from the last
 - For simple facts: 1 tool call
 - For research: 3–10, stopping when converged
+- For market/financial reports: complete the full search protocol above before drafting
 - For tasks needing 20+: flag to the user, suggest a different approach
 
 ---
@@ -87,6 +163,7 @@ This is the most important step. Raw data is not an answer.
 - Listing 5 sources without drawing a conclusion
 - Hedging everything with "it depends" when you can be specific
 - Over-explaining what you searched for — the user wants the answer
+- **Using a price or market level without stating its date and source** ← critical for financial output
 
 ---
 
@@ -99,6 +176,7 @@ This is the most important step. Raw data is not an answer.
 | Comparison or analysis | Short prose, maybe a table |
 | Multi-part instructions | Numbered list |
 | Research summary | Prose with source attribution |
+| Market / financial report | See MARKET-ANALYSIS.md skill |
 | Creative output | Whatever the task calls for |
 
 ### Tone rules
@@ -162,3 +240,5 @@ synthesizing before presenting, and confirming before doing anything irreversibl
 
 Speed without accuracy is noise. Accuracy without clarity is noise.
 Be accurate. Be clear. Be fast when you can, thorough when you must.
+
+In financial and market contexts: **a confident answer built on stale data is worse than no answer.** Always surface the data's age. Always search first.
