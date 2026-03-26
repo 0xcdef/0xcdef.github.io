@@ -54,6 +54,16 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
   <div class="post-item">
     <div class="post-item-meta">
       <span class="post-item-tag">Deep Dive</span>
+      <span class="post-date">Mar 26, 2026</span>
+    </div>
+    <a class="post-item-title" href="/blog/openclaw-claude-logic.html">Teaching an OpenClaw agent to think like&nbsp;Claude.</a>
+    <p class="post-item-desc">Four config files that transplant Claude's internal reasoning loop into your OpenClaw workspace — search routing, synthesis rules, injection defence, and wellbeing awareness. Includes downloads.</p>
+    <a class="post-item-link" href="/blog/openclaw-claude-logic.html">Read the post &rarr;</a>
+  </div>
+
+  <div class="post-item">
+    <div class="post-item-meta">
+      <span class="post-item-tag">Deep Dive</span>
       <span class="post-date">Mar 24, 2026</span>
     </div>
     <a class="post-item-title" href="/blog/ebook-rag-knowledge-base.html">Turn your PDF library into a knowledge base Claude actually&nbsp;uses.</a>
