@@ -47,6 +47,22 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
   </div>
 </div>
 
+<!-- Tools -->
+<div class="section-heading">Tools</div>
+<div class="post-list">
+
+  <div class="post-item">
+    <div class="post-item-meta">
+      <span class="post-item-tag">Utility</span>
+      <span class="post-date">Apr 09, 2026</span>
+    </div>
+    <a class="post-item-title" href="/tools/gps-area-measurement.html">GPS Land Area Measurement</a>
+    <p class="post-item-desc">Walk a boundary, get the area. Offline-ready GPS tool with trilingual UI (中文/EN/日本語), local-origin Shoelace projection, undo, manual coordinate entry, and full export.</p>
+    <a class="post-item-link" href="/tools/gps-area-measurement.html">Open tool &rarr;</a>
+  </div>
+
+</div>
+
 <!-- Latest Writing -->
 <div class="section-heading">Latest Writing</div>
 <div class="post-list">

@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS Land Area Measurement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand-300: #67e8f9; --brand-400: #22d3ee; --brand-500: #06b6d4;
+      --brand-600: #0891b2; --brand-700: #0e7490;
+      --success: #34d399; --warn: #fbbf24; --danger: #f87171;
+      --surface: #1e293b; --surface-light: #334155; --surface-dark: #0f172a;
+      --text: #e2e8f0; --text-dim: #94a3b8; --text-faint: #475569;
+      --radius: 12px;
+    }
+
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--surface-dark); color: var(--text);
+      -webkit-tap-highlight-color: transparent;
+      display: flex; flex-direction: column;
+    }
+    .mono { font-family: 'JetBrains Mono', 'Menlo', monospace; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      height: 48px; border-radius: var(--radius); border: none;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: transform .1s ease, box-shadow .15s ease, background .15s ease;
+      color: #fff; -webkit-user-select: none; user-select: none;
+    }
+    .btn:active { transform: scale(.95); }
+    .btn:disabled { opacity: .3; pointer-events: none; }
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .btn-success { background: var(--success); box-shadow: 0 4px 12px rgba(52,211,153,.2); }
+    .btn-success:hover { background: #2dd4a0; }
+    .btn-brand  { background: var(--brand-600); box-shadow: 0 4px 12px rgba(8,145,178,.2); }
+    .btn-brand:hover  { background: var(--brand-500); }
+    .btn-warn   { background: var(--warn); box-shadow: 0 4px 12px rgba(251,191,36,.2); }
+    .btn-warn:hover   { background: #f5b816; }
+    .btn-ghost  {
+      background: var(--surface-light); color: #cbd5e1;
+      border: 1px solid rgba(255,255,255,.05);
+    }
+    .btn-ghost:hover { background: #475569; }
+    .btn-danger-sm {
+      background: rgba(248,113,113,.15); color: var(--danger);
+      border: 1px solid rgba(248,113,113,.2);
+    }
+    .btn-danger-sm:hover { background: rgba(248,113,113,.25); }
+
+    /* ── Animations ── */
+    @keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:.55} }
+    .shimmer { animation: shimmer 1.5s ease infinite; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface-light); border-radius: 2px; }
+
+    /* ── Safe area ── */
+    .safe-bottom { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+
+    /* ── Header ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px; background: rgba(15,23,42,.92);
+      backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,.04);
+      flex-shrink: 0; z-index: 30;
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(6,182,212,.12); display: flex; align-items: center; justify-content: center;
+    }
+    .header-title { font-size: 14px; font-weight: 700; color: #fff; line-height: 1; }
+    .header-sub { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+
+    .status-badge {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(30,41,59,.8); border: 1px solid rgba(255,255,255,.05);
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: #475569; }
+    .status-text { font-size: 11px; font-weight: 500; color: var(--text-dim); }
+
+    /* ── Language Toggle ── */
+    .lang-toggle {
+      display: flex; gap: 2px; padding: 2px; border-radius: 6px;
+      background: rgba(30,41,59,.6); border: 1px solid rgba(255,255,255,.05);
+    }
+    .lang-btn {
+      padding: 3px 7px; border-radius: 4px; border: none; cursor: pointer;
+      font-size: 10px; font-weight: 600; background: transparent; color: var(--text-dim);
+      transition: all .15s ease;
+    }
+    .lang-btn.active { background: var(--brand-600); color: #fff; }
+
+    /* ── Map area ── */
+    .map-wrap { position: relative; flex: 1; overflow: hidden; background: var(--surface-dark); }
+    .map-wrap canvas { display: block; width: 100%; height: 100%; }
+
+    .overlay-badge {
+      position: absolute; display: none; align-items: center; gap: 8px;
+      padding: 5px 12px; border-radius: 8px; backdrop-filter: blur(6px);
+      font-size: 11px; font-weight: 600;
+    }
+    .tracking-badge {
+      top: 12px; left: 12px;
+      background: rgba(8,145,178,.2); border: 1px solid rgba(6,182,212,.3); color: var(--brand-300);
+    }
+    .point-badge {
+      top: 12px; right: 12px;
+      background: rgba(30,41,59,.8); border: 1px solid rgba(255,255,255,.05);
+      flex-direction: column; padding: 6px 12px;
+    }
+    .point-badge-label { font-size: 10px; color: var(--text-faint); font-weight: 500; }
+    .point-badge-value { font-size: 14px; font-weight: 700; color: #fff; }
+    .accuracy-badge {
+      bottom: 12px; left: 12px;
+      background: rgba(30,41,59,.8); border: 1px solid rgba(255,255,255,.05);
+    }
+    .accuracy-label { font-size: 10px; color: var(--text-faint); }
+    .accuracy-value { font-size: 12px; font-weight: 600; margin-left: 4px; }
+
+    .empty-state {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; pointer-events: none;
+    }
+    .empty-icon {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: rgba(51,65,85,.5); display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .empty-title { color: var(--text-dim); font-size: 14px; font-weight: 500; }
+    .empty-sub { color: var(--text-faint); font-size: 12px; margin-top: 4px; }
+
+    /* ── Stats Panel ── */
+    .stats-panel {
+      flex-shrink: 0; background: rgba(30,41,59,.8);
+      backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,.04);
+    }
+    .stats-row {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+    }
+    .stat-cell {
+      text-align: center; padding: 10px 12px;
+      border-right: 1px solid rgba(255,255,255,.04);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-label { font-size: 10px; color: var(--text-faint); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+    .stat-value { font-size: 18px; font-weight: 700; color: #fff; line-height: 1.2; margin-top: 2px; }
+    .stat-unit  { font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+
+    /* Detail row */
+    .area-details {
+      display: none; border-top: 1px solid rgba(255,255,255,.04);
+      padding: 8px 16px;
+    }
+    .area-details.show { display: block; }
+    .detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
+    .detail-label { font-size: 10px; color: var(--text-faint); }
+    .detail-value { font-size: 13px; font-weight: 600; color: var(--brand-300); }
+
+    /* Control row */
+    .controls {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+      padding: 6px 12px 12px;
+    }
+    .controls.three-col { grid-template-columns: repeat(3, 1fr); }
+
+    /* ── Modal / sheet ── */
+    .sheet-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 100; display: none; align-items: flex-end; justify-content: center;
+    }
+    .sheet-overlay.show { display: flex; }
+    .sheet {
+      background: var(--surface); border-radius: 16px 16px 0 0;
+      width: 100%; max-width: 480px; max-height: 70vh;
+      padding: 16px; overflow-y: auto;
+    }
+    .sheet-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .sheet input[type=text] {
+      width: 100%; padding: 10px 12px; border-radius: 8px;
+      background: var(--surface-dark); border: 1px solid rgba(255,255,255,.08);
+      color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px;
+      outline: none;
+    }
+    .sheet input:focus { border-color: var(--brand-500); }
+    .sheet label { font-size: 12px; color: var(--text-dim); display: block; margin: 8px 0 4px; }
+    .sheet-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .sheet-actions .btn { flex: 1; height: 42px; font-size: 13px; }
+
+    /* ── Export text ── */
+    .export-text {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      background: var(--surface-dark); border-radius: 8px; padding: 12px;
+      color: var(--text-dim); white-space: pre-wrap; max-height: 200px;
+      overflow-y: auto; border: 1px solid rgba(255,255,255,.05);
+      user-select: all;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header>
+    <div class="header-left">
+      <div class="header-icon">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--brand-400)" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title" data-i18n="title">土地面积测量</div>
+        <div class="header-sub">GPS Area Measurement</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="lang-toggle">
+        <button class="lang-btn active" data-lang="zh">中</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ja">日</button>
+      </div>
+      <div class="status-badge">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText" data-i18n="status_idle">待机中</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAP CANVAS ===== -->
+  <div class="map-wrap">
+    <canvas id="mapCanvas"></canvas>
+
+    <div class="overlay-badge tracking-badge" id="trackingOverlay">
+      <span style="width:8px;height:8px;border-radius:50%;background:var(--brand-400)" class="shimmer"></span>
+      <span data-i18n="recording">正在记录轨迹</span>
+    </div>
+    <div class="overlay-badge point-badge" id="pointCounter">
+      <span class="point-badge-label" data-i18n="sample_pts">采样点</span>
+      <span class="point-badge-value mono" id="pointCount">0</span>
+    </div>
+    <div class="overlay-badge accuracy-badge" id="accuracyBadge">
+      <span class="accuracy-label" data-i18n="accuracy">精度</span>
+      <span class="accuracy-value mono" id="accuracyValue">--</span>
+    </div>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="var(--text-faint)" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z"/>
+        </svg>
+      </div>
+      <div class="empty-title" data-i18n="empty_title">点击「开始」开始测量</div>
+      <div class="empty-sub" data-i18n="empty_sub">沿地块边界行走即可</div>
+    </div>
+  </div>
+
+  <!-- ===== STATS PANEL ===== -->
+  <div class="stats-panel">
+    <div class="stats-row">
+      <div class="stat-cell">
+        <div class="stat-label" data-i18n="live_area">实时面积</div>
+        <div class="stat-value mono" id="areaDisplay">--</div>
+        <div class="stat-unit" id="areaUnit" data-i18n="mu">亩</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label" data-i18n="perimeter">周长</div>
+        <div class="stat-value mono" id="perimeterDisplay">--</div>
+        <div class="stat-unit" data-i18n="meters">米</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label" data-i18n="walk_dist">步行距离</div>
+        <div class="stat-value mono" id="walkDistDisplay">--</div>
+        <div class="stat-unit" data-i18n="meters">米</div>
+      </div>
+    </div>
+
+    <div class="area-details" id="areaDetails">
+      <div class="detail-grid">
+        <div>
+          <div class="detail-label" data-i18n="sqm">平方米</div>
+          <div class="detail-value mono" id="sqmDisplay">--</div>
+        </div>
+        <div>
+          <div class="detail-label" data-i18n="hectare">公顷</div>
+          <div class="detail-value mono" id="hecDisplay">--</div>
+        </div>
+        <div>
+          <div class="detail-label" data-i18n="mu">亩</div>
+          <div class="detail-value mono" id="muDisplay">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls" id="controlRow">
+      <button id="btnStart" class="btn btn-success">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <span data-i18n="start">开始</span>
+      </button>
+      <button id="btnUndo" class="btn btn-danger-sm" disabled>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"/></svg>
+        <span data-i18n="undo">撤销</span>
+      </button>
+      <button id="btnCalc" class="btn btn-brand" disabled>
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+        <span data-i18n="calc">计算</span>
+      </button>
+      <button id="btnReset" class="btn btn-ghost">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"/></svg>
+        <span data-i18n="reset">重置</span>
+      </button>
+    </div>
+
+    <!-- Post-calculate actions -->
+    <div class="controls three-col" id="postCalcRow" style="display:none;">
+      <button id="btnExport" class="btn btn-brand">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+        <span data-i18n="export">导出</span>
+      </button>
+      <button id="btnAddPt" class="btn btn-ghost">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <span data-i18n="add_point">加点</span>
+      </button>
+      <button id="btnRestart" class="btn btn-ghost">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"/></svg>
+        <span data-i18n="new_measure">新测量</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== ADD POINT SHEET ===== -->
+  <div class="sheet-overlay" id="addPtSheet">
+    <div class="sheet">
+      <div class="sheet-title" data-i18n="add_point_title">手动添加坐标点</div>
+      <label data-i18n="latitude">纬度 (Latitude)</label>
+      <input type="text" id="inputLat" placeholder="35.6812">
+      <label data-i18n="longitude">经度 (Longitude)</label>
+      <input type="text" id="inputLng" placeholder="139.7671">
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" id="addPtCancel" data-i18n="cancel">取消</button>
+        <button class="btn btn-brand" id="addPtConfirm" data-i18n="confirm_add">确认添加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EXPORT SHEET ===== -->
+  <div class="sheet-overlay" id="exportSheet">
+    <div class="sheet">
+      <div class="sheet-title" data-i18n="export_title">测量结果</div>
+      <div class="export-text" id="exportContent"></div>
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" id="exportClose" data-i18n="close">关闭</button>
+        <button class="btn btn-brand" id="exportCopy" data-i18n="copy">复制</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+  (function() {
+    'use strict';
+
+    // ── i18n ──────────────────────────────────────────
+    const LANG = {
+      zh: {
+        title:'土地面积测量', status_idle:'待机中', recording:'正在记录轨迹',
+        sample_pts:'采样点', accuracy:'精度', empty_title:'点击「开始」开始测量',
+        empty_sub:'沿地块边界行走即可', live_area:'实时面积', perimeter:'周长',
+        walk_dist:'步行距离', meters:'米', mu:'亩', sqm:'平方米', hectare:'公顷',
+        start:'开始', pause:'暂停', resume:'继续', calc:'计算', reset:'重置',
+        undo:'撤销', export:'导出', add_point:'加点', new_measure:'新测量',
+        add_point_title:'手动添加坐标点', latitude:'纬度', longitude:'经度',
+        cancel:'取消', confirm_add:'确认添加', export_title:'测量结果', close:'关闭',
+        copy:'复制', copied:'已复制!', gps_tracking:'GPS定位中...', recording_n:'记录中 · {n} 点',
+        gps_weak:'GPS信号弱 (±{n}m)', gps_denied:'GPS权限被拒绝，请在设置中允许位置访问',
+        gps_unavail:'无法获取GPS信号，请到室外重试', gps_timeout:'GPS获取超时，请重试',
+        gps_unsupported:'设备不支持GPS', done:'计算完成', paused:'已暂停',
+        need3pts:'至少需要3个点才能计算面积', confirm_reset:'确定要清除所有数据重新开始吗？',
+        start_marker:'起点', invalid_coord:'请输入有效坐标',
+        acre:'英亩', sqft:'平方英尺', tsubo:'坪', feet:'英尺',
+      },
+      en: {
+        title:'Land Area', status_idle:'Standby', recording:'Recording track',
+        sample_pts:'Points', accuracy:'Accuracy', empty_title:'Tap "Start" to begin',
+        empty_sub:'Walk along the boundary', live_area:'Live Area', perimeter:'Perimeter',
+        walk_dist:'Walked', meters:'m', mu:'mu', sqm:'m²', hectare:'ha',
+        start:'Start', pause:'Pause', resume:'Resume', calc:'Calculate', reset:'Reset',
+        undo:'Undo', export:'Export', add_point:'Add Pt', new_measure:'New',
+        add_point_title:'Add Coordinate Manually', latitude:'Latitude', longitude:'Longitude',
+        cancel:'Cancel', confirm_add:'Add Point', export_title:'Measurement Results', close:'Close',
+        copy:'Copy', copied:'Copied!', gps_tracking:'Acquiring GPS...', recording_n:'Recording · {n} pts',
+        gps_weak:'Weak GPS (±{n}m)', gps_denied:'Location permission denied. Please enable in settings.',
+        gps_unavail:'Cannot acquire GPS. Try outdoors.', gps_timeout:'GPS timeout. Please retry.',
+        gps_unsupported:'GPS not supported', done:'Done', paused:'Paused',
+        need3pts:'Need at least 3 points to calculate area.', confirm_reset:'Clear all data and start over?',
+        start_marker:'Start', invalid_coord:'Enter valid coordinates',
+        acre:'acre', sqft:'ft²', tsubo:'tsubo', feet:'ft',
+      },
+      ja: {
+        title:'土地面積測量', status_idle:'待機中', recording:'記録中',
+        sample_pts:'測定点', accuracy:'精度', empty_title:'「開始」をタップして測量を開始',
+        empty_sub:'境界線に沿って歩いてください', live_area:'面積', perimeter:'周長',
+        walk_dist:'歩行距離', meters:'m', mu:'畝', sqm:'m²', hectare:'ha',
+        start:'開始', pause:'一時停止', resume:'再開', calc:'計算', reset:'リセット',
+        undo:'戻す', export:'出力', add_point:'追加', new_measure:'新規',
+        add_point_title:'座標を手動入力', latitude:'緯度', longitude:'経度',
+        cancel:'キャンセル', confirm_add:'追加する', export_title:'測量結果', close:'閉じる',
+        copy:'コピー', copied:'コピー済み!', gps_tracking:'GPS取得中...', recording_n:'記録中 · {n} 点',
+        gps_weak:'GPS弱 (±{n}m)', gps_denied:'位置情報の許可が必要です。設定で有効にしてください。',
+        gps_unavail:'GPS信号が取得できません。屋外でお試しください。', gps_timeout:'GPSタイムアウト。再試行してください。',
+        gps_unsupported:'GPSに対応していません', done:'計算完了', paused:'一時停止中',
+        need3pts:'面積計算には3点以上必要です。', confirm_reset:'すべてのデータをクリアしますか？',
+        start_marker:'開始', invalid_coord:'有効な座標を入力してください',
+        acre:'エーカー', sqft:'ft²', tsubo:'坪', feet:'ft',
+      },
+    };
+
+    let currentLang = 'zh';
+
+    function t(key, vars) {
+      let s = (LANG[currentLang] || LANG.zh)[key] || (LANG.zh)[key] || key;
+      if (vars) Object.keys(vars).forEach(k => { s = s.replace('{' + k + '}', vars[k]); });
+      return s;
+    }
+
+    function applyLang() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = t(key);
+      });
+      updateButtons();
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentLang = btn.dataset.lang;
+        applyLang();
+      });
+    });
+
+    // ── State ──────────────────────────────────────────
+    const state = {
+      points: [],
+      isTracking: false,
+      isPaused: false,
+      watchId: null,
+      lastRecorded: null,
+      finalArea: null,
+      finalPerimeter: null,
+    };
+
+    const MIN_DIST = 2.0;
+    const MAX_ACCURACY = 50;
+
+    const $ = id => document.getElementById(id);
+    const canvas = $('mapCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // ── Haversine ──
+    function haversine(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = d => d * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // ── Area: Shoelace with local-origin projection ──
+    function calcArea(pts) {
+      if (pts.length < 3) return 0;
+      const refLat = pts[0].lat;
+      const refLng = pts[0].lng;
+      const toRad = d => d * Math.PI / 180;
+      const mPerDegLat = 111132.92;
+      const mPerDegLng = 111412.84 * Math.cos(toRad(refLat)) - 93.5 * Math.cos(3 * toRad(refLat));
+      const xy = pts.map(p => [
+        (p.lng - refLng) * mPerDegLng,
+        (p.lat - refLat) * mPerDegLat
+      ]);
+      let sum = 0;
+      for (let i = 0; i < xy.length; i++) {
+        const j = (i + 1) % xy.length;
+        sum += xy[i][0] * xy[j][1] - xy[j][0] * xy[i][1];
+      }
+      return Math.abs(sum) / 2;
+    }
+
+    function calcPerimeter(pts) {
+      if (pts.length < 2) return 0;
+      let d = 0;
+      for (let i = 1; i < pts.length; i++) d += haversine(pts[i - 1].lat, pts[i - 1].lng, pts[i].lat, pts[i].lng);
+      d += haversine(pts[pts.length - 1].lat, pts[pts.length - 1].lng, pts[0].lat, pts[0].lng);
+      return d;
+    }
+
+    function calcWalkDistance(pts) {
+      if (pts.length < 2) return 0;
+      let d = 0;
+      for (let i = 1; i < pts.length; i++) d += haversine(pts[i - 1].lat, pts[i - 1].lng, pts[i].lat, pts[i].lng);
+      return d;
+    }
+
+    function convexHull(pts) {
+      if (pts.length < 3) return [...pts];
+      const sorted = [...pts].sort((a, b) => a.lat - b.lat || a.lng - b.lng);
+      const cross = (O, A, B) => (A.lat - O.lat) * (B.lng - O.lng) - (A.lng - O.lng) * (B.lat - O.lat);
+      const lower = [];
+      for (const p of sorted) {
+        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) lower.pop();
+        lower.push(p);
+      }
+      const upper = [];
+      for (let i = sorted.length - 1; i >= 0; i--) {
+        const p = sorted[i];
+        while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) upper.pop();
+        upper.push(p);
+      }
+      upper.pop(); lower.pop();
+      return lower.concat(upper);
+    }
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function drawMap() {
+      const W = canvas.width / (window.devicePixelRatio || 1);
+      const H = canvas.height / (window.devicePixelRatio || 1);
+      ctx.clearRect(0, 0, W, H);
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, '#0c1220'); bg.addColorStop(1, '#0a0e18');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+      const pts = state.points;
+      if (pts.length === 0) { drawGrid(W, H); drawCompass(W, H); return; }
+      const pad = 60;
+      const lats = pts.map(p => p.lat), lngs = pts.map(p => p.lng);
+      let minLat = Math.min(...lats), maxLat = Math.max(...lats);
+      let minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+      const latSpan = maxLat - minLat || 0.0001;
+      const lngSpan = maxLng - minLng || 0.0001;
+      const maxSpan = Math.max(latSpan, lngSpan);
+      const cx = (minLng + maxLng) / 2, cy = (minLat + maxLat) / 2;
+      minLng = cx - maxSpan * 0.65; maxLng = cx + maxSpan * 0.65;
+      minLat = cy - maxSpan * 0.65; maxLat = cy + maxSpan * 0.65;
+      const toX = lng => pad + (lng - minLng) / (maxLng - minLng) * (W - 2 * pad);
+      const toY = lat => pad + (1 - (lat - minLat) / (maxLat - minLat)) * (H - 2 * pad);
+      drawGrid(W, H);
+      drawScale(W, H, minLat, maxLat, minLng, maxLng);
+      if (pts.length >= 2) {
+        ctx.beginPath(); ctx.moveTo(toX(pts[0].lng), toY(pts[0].lat));
+        for (let i = 1; i < pts.length; i++) ctx.lineTo(toX(pts[i].lng), toY(pts[i].lat));
+        ctx.strokeStyle = 'rgba(6,182,212,0.5)'; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+      }
+      const showFinal = state.finalArea !== null;
+      const polyPts = showFinal ? pts : (pts.length >= 3 ? pts : null);
+      if (polyPts && polyPts.length >= 3) {
+        ctx.beginPath(); ctx.moveTo(toX(polyPts[0].lng), toY(polyPts[0].lat));
+        for (let i = 1; i < polyPts.length; i++) ctx.lineTo(toX(polyPts[i].lng), toY(polyPts[i].lat));
+        ctx.closePath();
+        ctx.fillStyle = showFinal ? 'rgba(52,211,153,0.12)' : 'rgba(6,182,212,0.05)'; ctx.fill();
+        ctx.setLineDash(showFinal ? [] : [6, 4]);
+        ctx.strokeStyle = showFinal ? '#34d399' : 'rgba(6,182,212,0.35)';
+        ctx.lineWidth = showFinal ? 2.5 : 1.5; ctx.stroke(); ctx.setLineDash([]);
+        if (!showFinal) {
+          ctx.beginPath();
+          ctx.moveTo(toX(pts[pts.length - 1].lng), toY(pts[pts.length - 1].lat));
+          ctx.lineTo(toX(pts[0].lng), toY(pts[0].lat));
+          ctx.strokeStyle = 'rgba(251,191,36,0.35)';
+          ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]); ctx.stroke(); ctx.setLineDash([]);
+        }
+      }
+      for (let i = 0; i < pts.length; i++) {
+        const x = toX(pts[i].lng), y = toY(pts[i].lat);
+        if (i === 0) {
+          ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fillStyle = '#34d399'; ctx.fill();
+          ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(52,211,153,0.3)'; ctx.lineWidth = 2; ctx.stroke();
+          ctx.font = '600 10px Inter,sans-serif'; ctx.fillStyle = '#34d399';
+          ctx.fillText(t('start_marker'), x + 13, y + 4);
+        } else if (i === pts.length - 1 && !showFinal) {
+          ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fillStyle = '#22d3ee'; ctx.fill();
+        } else {
+          ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = 'rgba(6,182,212,0.6)'; ctx.fill();
+        }
+      }
+      if (state.isTracking && !state.isPaused && pts.length > 0) {
+        const last = pts[pts.length - 1];
+        const lx = toX(last.lng), ly = toY(last.lat);
+        ctx.beginPath(); ctx.arc(lx, ly, 12, 0, Math.PI * 2); ctx.fillStyle = 'rgba(34,211,238,0.15)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI * 2); ctx.fillStyle = '#22d3ee'; ctx.fill();
+        ctx.beginPath(); ctx.arc(lx, ly, 2, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+      }
+      drawCompass(W, H);
+    }
+
+    function drawGrid(W, H) {
+      ctx.strokeStyle = 'rgba(148,163,184,0.04)'; ctx.lineWidth = 1;
+      const step = 40;
+      for (let x = 0; x < W; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 0; y < H; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+    }
+
+    function drawScale(W, H, minLat, maxLat, minLng, maxLng) {
+      const avgLat = (minLat + maxLat) / 2;
+      const mPerDeg = 111320 * Math.cos(avgLat * Math.PI / 180);
+      const spanM = (maxLng - minLng) * mPerDeg;
+      if (spanM <= 0) return;
+      const barW = 80, barM = spanM * (barW / (W - 120));
+      const label = barM >= 1000 ? (barM / 1000).toFixed(1) + ' km' : Math.round(barM) + ' m';
+      const bx = W - 20 - barW, by = H - 20;
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillRect(bx, by, barW, 2); ctx.fillRect(bx, by - 4, 1, 6); ctx.fillRect(bx + barW - 1, by - 4, 1, 6);
+      ctx.font = '500 10px Inter,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(label, bx + barW / 2, by - 8); ctx.textAlign = 'start';
+    }
+
+    function drawCompass(W, H) {
+      const cx = W - 24, cy = 40;
+      ctx.save(); ctx.globalAlpha = 0.35;
+      ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.font = 'bold 10px Inter,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#e2e8f0'; ctx.fillText('N', cx, cy - 1);
+      ctx.beginPath(); ctx.moveTo(cx, cy + 6); ctx.lineTo(cx - 3, cy + 12); ctx.lineTo(cx + 3, cy + 12); ctx.closePath();
+      ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fill(); ctx.restore();
+    }
+
+    function fmtDist(m) { return m < 1000 ? m.toFixed(1) : (m / 1000).toFixed(2) + 'k'; }
+
+    function updateStats() {
+      const pts = state.points, n = pts.length;
+      $('pointCount').textContent = n;
+      if (n < 2) { $('areaDisplay').textContent = '--'; $('perimeterDisplay').textContent = '--'; $('walkDistDisplay').textContent = '--'; return; }
+      $('walkDistDisplay').textContent = fmtDist(calcWalkDistance(pts));
+      if (state.finalArea !== null) {
+        $('areaDisplay').textContent = (state.finalArea / 666.67).toFixed(2);
+        $('perimeterDisplay').textContent = fmtDist(state.finalPerimeter);
+        $('sqmDisplay').textContent = state.finalArea.toFixed(1);
+        $('hecDisplay').textContent = (state.finalArea / 10000).toFixed(4);
+        $('muDisplay').textContent = (state.finalArea / 666.67).toFixed(2);
+      } else if (n >= 3) {
+        const area = calcArea(pts), perim = calcPerimeter(pts);
+        $('areaDisplay').textContent = (area / 666.67).toFixed(2);
+        $('perimeterDisplay').textContent = fmtDist(perim);
+      } else { $('areaDisplay').textContent = '--'; $('perimeterDisplay').textContent = fmtDist(calcPerimeter(pts)); }
+    }
+
+    function setStatus(type, text) {
+      const colors = { idle: '#475569', tracking: 'var(--brand-400)', paused: 'var(--warn)', done: 'var(--success)', error: 'var(--danger)' };
+      $('statusDot').style.background = colors[type] || colors.idle;
+      if (type === 'tracking') $('statusDot').classList.add('shimmer'); else $('statusDot').classList.remove('shimmer');
+      $('statusText').textContent = text;
+    }
+
+    function updateButtons() {
+      const btnStart = $('btnStart'), btnCalc = $('btnCalc'), btnUndo = $('btnUndo'), pts = state.points;
+      const isDone = !state.isTracking && state.finalArea !== null;
+      $('controlRow').style.display = isDone ? 'none' : '';
+      $('postCalcRow').style.display = isDone ? '' : 'none';
+      if (isDone) return;
+      btnUndo.disabled = pts.length === 0;
+      if (!state.isTracking && state.finalArea === null) {
+        btnStart.className = 'btn btn-success';
+        btnStart.querySelector('svg').outerHTML = '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        btnStart.querySelector('span').textContent = t('start'); btnCalc.disabled = pts.length < 3;
+      } else if (state.isTracking && !state.isPaused) {
+        btnStart.className = 'btn btn-warn';
+        btnStart.querySelector('svg').outerHTML = '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>';
+        btnStart.querySelector('span').textContent = t('pause'); btnCalc.disabled = pts.length < 3;
+      } else if (state.isTracking && state.isPaused) {
+        btnStart.className = 'btn btn-success';
+        btnStart.querySelector('svg').outerHTML = '<svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        btnStart.querySelector('span').textContent = t('resume'); btnCalc.disabled = pts.length < 3;
+      }
+    }
+
+    function render() { drawMap(); updateStats(); updateButtons(); }
+
+    function startTracking() {
+      if (!navigator.geolocation) { setStatus('error', t('gps_unsupported')); alert(t('gps_unsupported')); return; }
+      state.isTracking = true; state.isPaused = false; state.finalArea = null; state.finalPerimeter = null;
+      $('areaDetails').classList.remove('show');
+      state.watchId = navigator.geolocation.watchPosition(onPosition, onPositionError, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
+      setStatus('tracking', t('gps_tracking'));
+      $('trackingOverlay').style.display = 'flex'; $('pointCounter').style.display = 'flex'; $('emptyState').style.display = 'none';
+      render();
+    }
+
+    function pauseTracking() {
+      state.isPaused = true;
+      if (state.watchId !== null) { navigator.geolocation.clearWatch(state.watchId); state.watchId = null; }
+      setStatus('paused', t('paused')); $('trackingOverlay').style.display = 'none'; render();
+    }
+
+    function resumeTracking() {
+      state.isPaused = false;
+      state.watchId = navigator.geolocation.watchPosition(onPosition, onPositionError, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
+      setStatus('tracking', t('gps_tracking')); $('trackingOverlay').style.display = 'flex'; render();
+    }
+
+    function stopTracking() {
+      state.isTracking = false; state.isPaused = false;
+      if (state.watchId !== null) { navigator.geolocation.clearWatch(state.watchId); state.watchId = null; }
+      $('trackingOverlay').style.display = 'none';
+    }
+
+    function onPosition(pos) {
+      const { latitude, longitude, accuracy } = pos.coords;
+      $('accuracyBadge').style.display = 'flex';
+      $('accuracyValue').textContent = '±' + accuracy.toFixed(0) + 'm';
+      $('accuracyValue').style.color = accuracy <= 10 ? 'var(--success)' : accuracy <= 25 ? 'var(--warn)' : 'var(--danger)';
+      if (accuracy > MAX_ACCURACY) { setStatus('tracking', t('gps_weak', { n: Math.round(accuracy) })); return; }
+      if (state.lastRecorded) { if (haversine(state.lastRecorded.lat, state.lastRecorded.lng, latitude, longitude) < MIN_DIST) return; }
+      state.points.push({ lat: latitude, lng: longitude, time: Date.now(), accuracy });
+      state.lastRecorded = { lat: latitude, lng: longitude };
+      setStatus('tracking', t('recording_n', { n: state.points.length })); render();
+    }
+
+    function onPositionError(err) {
+      const msgs = { 1: t('gps_denied'), 2: t('gps_unavail'), 3: t('gps_timeout') };
+      setStatus('error', msgs[err.code] || 'GPS Error');
+    }
+
+    function doCalculate() {
+      if (state.points.length < 3) { alert(t('need3pts')); return; }
+      stopTracking();
+      state.finalArea = calcArea(state.points); state.finalPerimeter = calcPerimeter(state.points);
+      setStatus('done', t('done')); $('areaDetails').classList.add('show'); render();
+    }
+
+    function doUndo() {
+      if (state.points.length === 0) return;
+      state.points.pop();
+      if (state.points.length > 0) { const last = state.points[state.points.length - 1]; state.lastRecorded = { lat: last.lat, lng: last.lng }; }
+      else { state.lastRecorded = null; }
+      render();
+    }
+
+    function doReset() {
+      stopTracking(); state.points = []; state.lastRecorded = null; state.finalArea = null; state.finalPerimeter = null;
+      setStatus('idle', t('status_idle')); $('areaDetails').classList.remove('show');
+      $('trackingOverlay').style.display = 'none'; $('pointCounter').style.display = 'none';
+      $('accuracyBadge').style.display = 'none'; $('emptyState').style.display = ''; render();
+    }
+
+    function doExport() {
+      const pts = state.points, area = state.finalArea, perim = state.finalPerimeter;
+      const lines = ['=== ' + t('export_title') + ' ===', new Date().toLocaleString(), '',
+        t('sqm') + ': ' + area.toFixed(1) + ' m²', t('mu') + ': ' + (area / 666.67).toFixed(2),
+        t('hectare') + ': ' + (area / 10000).toFixed(4), t('acre') + ': ' + (area / 4046.86).toFixed(4),
+        t('tsubo') + ': ' + (area / 3.306).toFixed(1), '',
+        t('perimeter') + ': ' + perim.toFixed(1) + ' m',
+        t('walk_dist') + ': ' + calcWalkDistance(pts).toFixed(1) + ' m',
+        t('sample_pts') + ': ' + pts.length, '', '--- Coordinates ---'];
+      pts.forEach((p, i) => { lines.push((i + 1) + '. ' + p.lat.toFixed(7) + ', ' + p.lng.toFixed(7) + '  (±' + p.accuracy.toFixed(0) + 'm)'); });
+      $('exportContent').textContent = lines.join('\n'); $('exportSheet').classList.add('show');
+    }
+
+    function showAddPoint() { $('addPtSheet').classList.add('show'); $('inputLat').focus(); }
+
+    function confirmAddPoint() {
+      const lat = parseFloat($('inputLat').value), lng = parseFloat($('inputLng').value);
+      if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) { alert(t('invalid_coord')); return; }
+      state.points.push({ lat, lng, time: Date.now(), accuracy: 0 }); state.lastRecorded = { lat, lng };
+      $('inputLat').value = ''; $('inputLng').value = ''; $('addPtSheet').classList.remove('show');
+      if (state.finalArea !== null) { state.finalArea = calcArea(state.points); state.finalPerimeter = calcPerimeter(state.points); }
+      $('emptyState').style.display = 'none'; $('pointCounter').style.display = 'flex'; render();
+    }
+
+    $('btnStart').addEventListener('click', () => { if (!state.isTracking) startTracking(); else if (state.isPaused) resumeTracking(); else pauseTracking(); });
+    $('btnCalc').addEventListener('click', doCalculate);
+    $('btnUndo').addEventListener('click', doUndo);
+    $('btnReset').addEventListener('click', () => { if (state.points.length > 0 && !confirm(t('confirm_reset'))) return; doReset(); });
+    $('btnExport').addEventListener('click', doExport);
+    $('btnAddPt').addEventListener('click', showAddPoint);
+    $('btnRestart').addEventListener('click', () => { if (!confirm(t('confirm_reset'))) return; doReset(); });
+    $('addPtCancel').addEventListener('click', () => $('addPtSheet').classList.remove('show'));
+    $('addPtConfirm').addEventListener('click', confirmAddPoint);
+    $('exportClose').addEventListener('click', () => $('exportSheet').classList.remove('show'));
+    $('exportCopy').addEventListener('click', () => {
+      navigator.clipboard.writeText($('exportContent').textContent).then(() => {
+        $('exportCopy').querySelector('span').textContent = t('copied');
+        setTimeout(() => { $('exportCopy').querySelector('span').textContent = t('copy'); }, 1500);
+      });
+    });
+    ['addPtSheet', 'exportSheet'].forEach(id => { $(id).addEventListener('click', e => { if (e.target === $(id)) $(id).classList.remove('show'); }); });
+
+    window.addEventListener('resize', () => { resizeCanvas(); drawMap(); });
+    resizeCanvas(); render();
+  })();
+  </script>
+</body>
+</html>
