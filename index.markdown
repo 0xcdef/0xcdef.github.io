@@ -69,6 +69,16 @@ title: 0xcdef — AI & Agents for ASIC/SoC Design
 
   <div class="post-item">
     <div class="post-item-meta">
+      <span class="post-item-tag">Methodology</span>
+      <span class="post-date">Apr 12, 2026</span>
+    </div>
+    <a class="post-item-title" href="/blog/specforge-multi-agent-spec-builder.html">Build specs that are actually ready to&nbsp;execute.</a>
+    <p class="post-item-desc">SpecForge runs your requirements through two rounds of adversarial multi-agent audit — completeness, ambiguity, feasibility, consistency, executability — before producing an executive plan ready to hand to an agent.</p>
+    <a class="post-item-link" href="/blog/specforge-multi-agent-spec-builder.html">Read the post &rarr;</a>
+  </div>
+
+  <div class="post-item">
+    <div class="post-item-meta">
       <span class="post-item-tag">Deep Dive</span>
       <span class="post-date">Mar 26, 2026</span>
     </div>

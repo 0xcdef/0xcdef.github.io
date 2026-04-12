@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpecForge — Multi-Agent Specification Builder — 0xcdef</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono&display=swap');
+
+  :root {
+    --bg:          #F7F5F0;
+    --bg2:         #EDEAE2;
+    --ink:         #1A1916;
+    --ink2:        #5A5850;
+    --ink3:        #8A8880;
+    --accent:      #C4572A;
+    --accent2:     #E8A060;
+    --teal:        #1D7A6A;
+    --teal-light:  #E2F3EF;
+    --border:      #D8D4CA;
+    --card:        #FFFFFF;
+    --serif:       'DM Serif Display', Georgia, serif;
+    --sans:        'DM Sans', system-ui, sans-serif;
+    --mono:        'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink2);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .masthead {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .masthead .logo {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .08em;
+    opacity: .7;
+  }
+  .masthead .sep { opacity: .25; margin: 0 4px; }
+  .masthead .badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .masthead a.home-link {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(247,245,240,.5);
+    text-decoration: none;
+    margin-left: auto;
+  }
+  .masthead a.home-link:hover { color: rgba(247,245,240,.85); }
+
+  .hero {
+    background: var(--ink);
+    padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 40px) clamp(36px, 7vw, 70px);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(196,87,42,.25) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,122,106,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 6vw, 58px);
+    line-height: 1.08;
+    color: #F7F5F0;
+    margin-bottom: 20px;
+    max-width: 640px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent2); }
+  .hero-sub {
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: rgba(247,245,240,.6);
+    line-height: 1.6;
+    max-width: 560px;
+    margin-bottom: 28px;
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: rgba(247,245,240,.45);
+  }
+
+  .body-wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: clamp(32px, 5vw, 60px) clamp(16px, 4vw, 40px);
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: clamp(24px, 4vw, 60px);
+    align-items: start;
+  }
+  @media (max-width: 780px) {
+    .body-wrap { grid-template-columns: 1fr; gap: 0; }
+    .sidebar   { display: none; }
+  }
+  @media (max-width: 480px) {
+    .card-grid { grid-template-columns: 1fr; }
+  }
+
+  article { min-width: 0; }
+
+  article h2 {
+    font-family: var(--serif);
+    font-size: clamp(22px, 4vw, 30px);
+    line-height: 1.15;
+    color: var(--ink);
+    margin: 48px 0 14px;
+  }
+  article h2:first-child { margin-top: 0; }
+
+  article h3 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 32px 0 10px;
+  }
+
+  article p     { margin-bottom: 18px; color: var(--ink2); }
+  article strong{ font-weight: 600; }
+  article em    { font-style: italic; }
+  article a {
+    color: var(--teal);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .divider { height: 1px; background: var(--border); margin: 36px 0; }
+
+  .pull {
+    border-left: 3px solid var(--accent);
+    padding: 14px 20px;
+    margin: 28px 0;
+    background: var(--card);
+    border-radius: 0 8px 8px 0;
+  }
+  .pull p {
+    font-family: var(--serif);
+    font-size: clamp(17px, 3vw, 22px);
+    line-height: 1.35;
+    color: var(--ink);
+    margin: 0;
+    font-style: italic;
+  }
+
+  code {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--bg2);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .cmd {
+    background: var(--ink);
+    color: #A8E6CF;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 16px 0;
+    line-height: 1.7;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cmd .comment { color: rgba(168,230,207,.35); }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+  }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    background: var(--card);
+  }
+  .card .badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .badge-accent { background: #FEF3EC; color: var(--accent); }
+  .badge-teal   { background: var(--teal-light); color: var(--teal); }
+
+  .card h4 {
+    font-family: var(--serif);
+    font-size: clamp(15px, 2.5vw, 18px);
+    color: var(--ink);
+    margin-bottom: 7px;
+  }
+  .card p   { font-size: 13px; color: var(--ink2); margin: 0; }
+  .card .note { margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--ink3); }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 20px 0; }
+  .data-table {
+    width: 100%;
+    min-width: 320px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .data-table th {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 9px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .data-table th:first-child { border-radius: 8px 0 0 0; }
+  .data-table th:last-child  { border-radius: 0 8px 0 0; }
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:nth-child(even) td { background: var(--card); }
+  .text-good { color: var(--teal);   font-weight: 600; }
+  .text-warn { color: #A06010;       font-weight: 600; }
+  .text-bad  { color: #C04040;       font-weight: 600; }
+
+  .sidebar {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .sidebar-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .sidebar-card h4 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 14px;
+  }
+  .sidebar-card.dark {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .sidebar-card.dark h4 { color: rgba(247,245,240,.4); }
+  .sidebar-card.dark p  { font-size: 13px; color: rgba(247,245,240,.7); line-height: 1.6; margin: 0; }
+
+  .step-row {
+    display: flex;
+    gap: 9px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 20px; height: 20px;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text         { color: var(--ink2); line-height: 1.4; }
+  .step-text strong  { color: var(--ink); display: block; margin-bottom: 2px; }
+
+  footer {
+    background: var(--ink);
+    color: rgba(247,245,240,.4);
+    padding: clamp(24px, 4vw, 40px);
+    text-align: center;
+    font-size: 12px;
+  }
+  footer strong { color: rgba(247,245,240,.7); }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <span class="logo">0xcdef</span>
+  <span class="sep">·</span>
+  <span class="logo">AI &amp; Agents</span>
+  <a class="home-link" href="/">← Home</a>
+  <span class="badge">Methodology</span>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Agentic Workflows · Claude Skills</div>
+    <h1>Build specs that are <em>actually ready</em> to execute.</h1>
+    <p class="hero-sub">
+      SpecForge is a Claude skill that runs your requirements through two rounds of adversarial multi-agent audit before producing an executive plan — catching ambiguity, gaps, and feasibility risks before a single line of code is written.
+    </p>
+    <div class="hero-meta">
+      <span>Methodology · Apr 12, 2026</span>
+      <span>·</span>
+      <span>8 min read</span>
+    </div>
+  </div>
+</div>
+
+<div class="body-wrap">
+  <article>
+
+    <h2>The problem with specs written by one agent</h2>
+
+    <p>Ask a single LLM to write a design specification and it will produce something that looks thorough. The sections are there, the terminology is correct, the structure is clean. But it will also quietly skip the things it doesn't know how to answer, resolve ambiguous requirements in whichever direction felt natural, and assert that third-party APIs work exactly the way it remembers — which may be a version or two out of date.</p>
+
+    <p>The spec looks done. It isn't. And the gap between looking-done and actually-done is where projects go wrong.</p>
+
+    <div class="pull">
+      <p>"Audit agents are adversaries, not assistants. Their job is to find problems. The master's job is to synthesize solutions."</p>
+    </div>
+
+    <p>SpecForge is a Claude Code skill built around a simple fix: after the master agent writes a draft spec, it dispatches three independent audit agents — each with a single, adversarial job. One checks completeness. One hunts for ambiguity. One stress-tests feasibility. They report back. The master triages, applies the findings, and only then hands a release spec to the user for confirmation. The same process repeats on the executive plan.</p>
+
+    <div class="divider"></div>
+
+    <h2>The workflow in seven steps</h2>
+
+    <p>SpecForge runs through a fixed sequence of phases separated by hard gates. No phase can be skipped. No gate auto-confirms.</p>
+
+    <h3>Phase 0 — Requirements elicitation</h3>
+    <p>The master conducts a structured six-question interview: what is it, who uses it, what are the core goals, what are the constraints, what is out of scope, and what does success look like. If the user's first message already answers most of these, the master extracts them directly and only asks what's missing. Output is <code>requirements.md</code> — the source of truth that every subsequent artifact traces back to.</p>
+
+    <p><strong>Gate 0</strong> holds here. Nothing moves until the user confirms the requirements are correct.</p>
+
+    <h3>Phase 1 — Domain research + draft spec</h3>
+    <p>Before writing, the master probes for available research tools — AutoStudy KB first, deep search skill second, uploaded reference documents third, agent reasoning only as the last resort. Whatever is used gets declared in the spec header as a <em>research basis</em>. This matters: the Auditor-Feasibility reads that field and raises its critical threshold when the basis is agent reasoning only, because unsupported API assumptions become Critical findings rather than Major ones.</p>
+
+    <h3>Phase 2 — Audit Round 1: three lenses</h3>
+    <p>Three subagent instances run one-pass against the draft spec, each with a different adversarial system prompt:</p>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="badge badge-accent">Lens 1</span>
+        <h4>Auditor-Completeness</h4>
+        <p>Does the spec address every requirement and success criterion? Flags gaps only — no suggestions, no rewrites.</p>
+      </div>
+      <div class="card">
+        <span class="badge badge-accent">Lens 2</span>
+        <h4>Auditor-Ambiguity</h4>
+        <p>Finds every sentence that two engineers could interpret differently. Quotes the exact text, names both interpretations, rates which is more dangerous.</p>
+      </div>
+      <div class="card">
+        <span class="badge badge-teal">Lens 3</span>
+        <h4>Auditor-Feasibility</h4>
+        <p>Stress-tests implementation paths, API assumptions, scale assumptions, and dependency risks. Escalates to Critical when research basis is agent-only.</p>
+      </div>
+    </div>
+
+    <p>Auditors never see each other's output. Separation is the point — overlapping findings signal high importance; divergent findings broaden coverage.</p>
+
+    <h3>Phase 3 — Master synthesis</h3>
+    <p>The master reads all three reports and applies a deterministic triage algorithm: classify each finding as Critical, Major, or Minor; deduplicate cross-auditor overlaps; apply all Critical and Major findings; log Minor findings without acting on them; write a rejection reason for anything deliberately not applied. Every finding gets an explicit disposition in <code>audit_log_r1.md</code> — nothing is silently ignored.</p>
+
+    <p><strong>Gate 1</strong> holds after <code>spec_v1.md</code> is delivered. The user confirms or requests amendments before the executive plan begins.</p>
+
+    <h3>Phases 4–6 — Executive plan + second audit</h3>
+    <p>The executive spec transforms the confirmed design spec into a phased build plan: phases with deliverables and testable acceptance criteria, a dependency graph with the critical path identified, interface contracts, a risk register, and an open-questions table with owners. Before writing any phase breakdown, the master resolves or explicitly assigns all open questions to specific phases — no OQ is deferred silently into the risk register.</p>
+
+    <p>Two more audit lenses then review the executive plan: Auditor-Consistency (does it faithfully implement the release spec?) and Auditor-Executability (can it be handed to an agent and run without further architectural decisions?). The master applies a second triage pass and delivers <code>exec_spec_v1.md</code>.</p>
+
+    <p><strong>Gate 2</strong> is the final hold. Unresolved open questions block this gate — every OQ must be closed or explicitly deferred to a named post-v1 milestone with the user's acknowledgement.</p>
+
+    <div class="divider"></div>
+
+    <h2>What the audit actually catches</h2>
+
+    <p>During the test run that produced this post, SpecForge processed a SystemVerilog dependency parser project from a single sentence of requirements to a full executive plan. Thirteen findings surfaced across the two audit rounds. A few are worth highlighting because they represent the exact class of bugs that kill projects quietly.</p>
+
+    <h3>The ambiguity that breaks downstream tools</h3>
+    <p>The draft spec said that unresolved dependencies would be logged to an <code>unresolved[]</code> array. Auditor-Ambiguity flagged this as Critical: it was unclear whether <em>all</em> types of unresolved references — modules, includes, packages, interfaces — went into one flat array, or whether each type was tracked separately. Two engineers would implement this differently. The fix was a typed dict: <code>unresolved{modules, includes, packages, interfaces}</code>. A downstream tool consuming this JSON would behave correctly with one interpretation and silently lose data with the other.</p>
+
+    <h3>The feasibility risk hiding in plain sight</h3>
+    <p>The spec assumed pyslang's Python API could extract module instances, package imports, and interface usage with straightforward AST walking. Auditor-Feasibility rated this Critical because the research basis was agent reasoning only — the pyslang API surface for structural extraction is non-trivial and version-dependent. The fix: pin to pyslang >= 6.0, add an open question requiring an empirical API spike on day one of that phase, and document a regex fallback path if the API proves insufficient.</p>
+
+    <h3>The executability gap that stalls implementation</h3>
+    <p>The executive spec's Phase 4 said to resolve <code>`include</code> directives via the incdir chain — but didn't specify the resolution order. File-relative first then incdirs? Incdirs only? Incdirs first? Auditor-Executability rated this Critical: an agent starting that phase would have to make an architectural decision not in the spec. The release spec had specified it in Design Decision D6; the executive spec had just failed to restate it. One line fixed it.</p>
+
+    <div class="divider"></div>
+
+    <h2>Degraded mode and explicit invocation</h2>
+
+    <p>SpecForge is designed for use with real subagent dispatch — <code>claude -p</code> one-pass calls or Cohole crew dispatch. When subagents aren't available, the skill runs in degraded mode: the master switches audit personas sequentially and explicitly. But before doing so, it stops and tells the user: the same model auditing its own output has blind spots, and the user should confirm they want to proceed. This notice is not optional — silent degradation is how quality loss goes unnoticed.</p>
+
+    <p>The skill is also explicitly invocation-only. It will not activate because you mentioned a spec, a plan, or requirements in passing. You invoke it with <code>/spec-forge</code>, <code>use spec-forge</code>, or <code>activate spec-forge</code>. This was a deliberate design decision: SpecForge runs a heavyweight multi-phase workflow. It should never fire unexpectedly.</p>
+
+    <div class="divider"></div>
+
+    <h2>The artifact trail</h2>
+
+    <p>Every SpecForge run produces a traceable artifact chain. Each file has a status that advances through <code>pending → draft → confirmed → final</code>. The registry doubles as a session handover block — if the session is interrupted mid-run, the next session can read the registry and resume from the correct phase.</p>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Artifact</th><th>Phase</th><th>What it captures</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>requirements.md</code></td><td>0</td><td>Source of truth — goals, constraints, success criteria</td></tr>
+          <tr><td><code>spec_v0.md</code></td><td>1</td><td>Draft spec with research basis declared</td></tr>
+          <tr><td><code>audit_log_r1.md</code></td><td>3</td><td>Every finding: applied, rejected, or logged — with reasons</td></tr>
+          <tr><td><code>spec_v1.md</code></td><td>3</td><td>Release spec confirmed by user at Gate 1</td></tr>
+          <tr><td><code>exec_spec_v0.md</code></td><td>4</td><td>Phased build plan with OQ spike gates</td></tr>
+          <tr><td><code>audit_log_r2.md</code></td><td>6</td><td>Consistency and executability triage decisions</td></tr>
+          <tr><td><code>exec_spec_final.md</code></td><td>Final</td><td>Clean, confirmed, ready to hand to an agent</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Getting the skill</h2>
+
+    <p>SpecForge ships as a single <code>SKILL.md</code> file dropped into your Claude skills folder. It works with Claude Code and any setup that supports the skills system. The full file — including all auditor system prompts, the triage algorithm, gate language, and the artifact registry — is available in the Cohole skills collection.</p>
+
+    <p>The test project used to validate the skill — the SystemVerilog dependency parser — is a real tool worth building. If you want to see the full <code>requirements.md</code>, <code>spec_v1.md</code>, and <code>exec_spec_final.md</code> that came out of the run, those are included alongside the skill.</p>
+
+  </article>
+
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h4>SpecForge — Phase Map</h4>
+      <div class="step-row"><div class="step-num">0</div><div class="step-text"><strong>Requirements</strong>Six-question interview → requirements.md · Gate 0</div></div>
+      <div class="step-row"><div class="step-num">1</div><div class="step-text"><strong>Draft Spec</strong>Research probe → spec_v0.md with basis declared</div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-text"><strong>Audit R1</strong>3 adversarial lenses: Completeness · Ambiguity · Feasibility</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-text"><strong>Synthesis</strong>Triage → spec_v1.md + audit_log · Gate 1</div></div>
+      <div class="step-row"><div class="step-num">4</div><div class="step-text"><strong>Exec Plan</strong>Phases · deps · contracts · risks · OQ spike gates</div></div>
+      <div class="step-row"><div class="step-num">5</div><div class="step-text"><strong>Audit R2</strong>2 lenses: Consistency · Executability</div></div>
+      <div class="step-row"><div class="step-num">6</div><div class="step-text"><strong>Final Synth</strong>exec_spec_final.md · Gate 2</div></div>
+    </div>
+
+    <div class="sidebar-card dark">
+      <h4>Invoke explicitly</h4>
+      <p>SpecForge never auto-triggers. Use <code style="color:#A8E6CF;background:rgba(255,255,255,.08)">/spec-forge</code> or say "use spec-forge" to start a run. It runs a heavyweight workflow — it should never fire by accident.</p>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <strong>0xcdef</strong> · AI &amp; Agents for ASIC/SoC Design
+</footer>
+
+</body>
+</html>
